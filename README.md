@@ -1,7 +1,8 @@
 # PymolFold
 
-Predict your protein in your Pymol!  
+Predict your protein in Pymol!  
 Inspired by [ColabFold](https://github.com/sokrypton/ColabFold) by [Sergey O](https://github.com/sokrypton).  
+Visualization inspired by [pymol-color-alphafold](https://github.com/cbalbin-bio/pymol-color-alphafold).  
 Thanks to ESMFold by Meta and the [API](https://esmatlas.com/about#api).  
 
 Tested under macOS Monterey Version 12.5.1, Python 3.7.12.  
