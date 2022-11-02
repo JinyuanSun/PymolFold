@@ -6,7 +6,7 @@ Visualization inspired by [pymol-color-alphafold](https://github.com/cbalbin-bio
 Thanks to ESMFold by Meta and the [API](https://esmatlas.com/about#api).  
 
 Tested under macOS Monterey Version 12.5.1, Python 3.7.12.  
-Open a issue if ran into any error.  
+Open an issue if ran into any errors.  
 
 ## Usage
 
