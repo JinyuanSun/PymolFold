@@ -1,6 +1,6 @@
 # PymolFold
 
-Predict your protein in Pymol!  
+Fold your protein in PyMOL!  
 Inspired by [ColabFold](https://github.com/sokrypton/ColabFold) by [Sergey O](https://github.com/sokrypton).  
 Visualization inspired by [pymol-color-alphafold](https://github.com/cbalbin-bio/pymol-color-alphafold).  
 Thanks to ESMFold by Meta and the [API](https://esmatlas.com/about#api).  
@@ -8,11 +8,17 @@ Thanks to ESMFold by Meta and the [API](https://esmatlas.com/about#api).
 Tested under macOS Monterey Version 12.5.1, Python 3.7.12.  
 Open an issue if ran into any errors.  
 
+## Install pymol-open-source
+
+```bash
+conda install -c conda-forge pymol-open-source
+```
+
 ## Usage
 
-1. Load extension into pymol. In the pymol command prompt:
+1. Load extension into PyMOL. In the PyMOL command prompt:
 
-```
+```bash
 run https://raw.githubusercontent.com/JinyuanSun/PymolFold/main/predict_structure.py
 # try command below in China mainland:
 run https://raw.staticdn.net/JinyuanSun/PymolFold/main/predict_structure.py
@@ -20,13 +26,14 @@ run https://raw.staticdn.net/JinyuanSun/PymolFold/main/predict_structure.py
 
 2. Fold your protein!
 
-```
+```bash
 esmfold GENGEIPLEIRATTGAEVDTRAVTAVEMTEGTLGIFRLPEEDYTALENFRYNRVAGENWKPASTVIYVGGTYARLCAYAPYNSVEFKNSSLKTEAGLTMQTYAAEKDMRFAVSGGDEVWKKTPTANFELKRAYARLVLSVVRDATYPNTCKITKAKIEAFTGNIITANTVDISTGTEGSGTQTPQYIHTVTTGLKDGFAIGLPQQTFSGGVVLTLTVDGMEYSVTIPANKLSTFVRGTKYIVSLAVKGGKLTLMSDKILIDKDWAEVQTGTGGSGDDYDTSFN, test
 coloresm
 orient 
 ray 1280, 960, async=1
 ```
-![Step 2 Screenshot](img/esmfold.png)
+
+![Screenshot](img/esmfold.png)
 
 ## Reference
 
