@@ -7,6 +7,8 @@ Inspired by [ColabFold](https://github.com/sokrypton/ColabFold) by [Sergey O](ht
 
 ```
 run https://raw.githubusercontent.com/JinyuanSun/PymolFold/main/predict_structure.py
+# try command below in China mainland:
+run https://raw.staticdn.net/JinyuanSun/PymolFold/main/predict_structure.py
 ```
 
 2. Fold your protein!
