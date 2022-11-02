@@ -1,7 +1,8 @@
 # PymolFold
 
 Predict your protein in your Pymol!  
-Inspired by [ColabFold](https://github.com/sokrypton/ColabFold) by [Sergey O](https://github.com/sokrypton).
+Inspired by [ColabFold](https://github.com/sokrypton/ColabFold) by [Sergey O](https://github.com/sokrypton).  
+Thanks to ESMFold by Meta and the [API](https://esmatlas.com/about#api).  
 
 1. Load extension into pymol. In the pymol command prompt:
 
