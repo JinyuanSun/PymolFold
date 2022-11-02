@@ -7,6 +7,8 @@ Thanks to ESMFold by Meta and the [API](https://esmatlas.com/about#api).
 Tested under macOS Monterey Version 12.5.1, Python 3.7.12.  
 Open a issue if ran into any error.  
 
+## Usage
+
 1. Load extension into pymol. In the pymol command prompt:
 
 ```

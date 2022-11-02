@@ -22,7 +22,6 @@ def query_esmfold(sequence:str, name:str=None):
         'Content-Type': 'application/x-www-form-urlencoded',
     }
 
-    # data = 'GENGEIPLEIRATTGAEVDTRAVTAVEMTEGTLGIFRLPEEDYTALENFRYNRVAGENWKPASTVIYVGGTYARLCAYAPYNSVEFKNSSLKTEAGLTMQTYAAEKDMRFAVSGGDEVWKKTPTANFELKRAYARLVLSVVRDATYPNTCKITKAKIEAFTGNIITANTVDISTGTEGSGTQTPQYIHTVTTGLKDGFAIGLPQQTFSGGVVLTLTVDGMEYSVTIPANKLSTFVRGTKYIVSLAVKGGKLTLMSDKILIDKDWAEVQTGTGGSGDDYDTSFN'
 
     response = requests.post('https://api.esmatlas.com/foldSequence/v1/pdb/', headers=headers, data=sequence)
     if not name:
@@ -41,13 +40,13 @@ def coloresm(selection="all"):
     
     """
     AUTHOR
-    Christian Balbin
+    Jinyuan Sun
 
     DESCRIPTION
-    Colors Alphafold structures by pLDDT
+    Colors ESMFold structures by pLDDT
 
     USAGE
-    coloraf sele
+    coloresm sele
 
     PARAMETERS
 
@@ -66,5 +65,4 @@ def coloresm(selection="all"):
 
 cmd.extend("coloresm", coloresm)
 cmd.auto_arg[0]["coloresm"] = [cmd.object_sc, "object", ""]
-
 cmd.extend("esmfold", query_esmfold)
