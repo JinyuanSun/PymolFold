@@ -53,15 +53,37 @@ def coloresm(selection="all"):
     sele (string)
     The name of the selection/object to color by pLDDT. Default: all
     """
+    # Alphafold color scheme for plddt
     cmd.set_color("high_lddt_c", [0,0.325490196078431,0.843137254901961 ])
     cmd.set_color("normal_lddt_c", [0.341176470588235,0.792156862745098,0.976470588235294])
     cmd.set_color("medium_lddt_c", [1,0.858823529411765,0.070588235294118])
     cmd.set_color("low_lddt_c", [1,0.494117647058824,0.270588235294118])
-    cmd.color("high_lddt_c", f"({selection}) and b > 0.89")
-    cmd.color("normal_lddt_c", f"({selection}) and b < 0.9 and b > 0.69")
-    cmd.color("medium_lddt_c", f"({selection}) and b < 0.70 and b > 0.49")
-    cmd.color("low_lddt_c", f"({selection}) and b < 0.50")
+    
+    # test the scale of predicted_lddt (0~1 or 0~100 ) as b-factors
+    cmd.select('test_b_scale', f'b>1 and ({selection})')
+    b_scale=cmd.count_atoms('test_b_scale')
 
+    if b_scale>0:
+        cmd.select("high_lddt", f"({selection}) and (b >90 or b =90)")
+        cmd.select("normal_lddt", f"({selection}) and ((b <90 and b >70) or (b =70))")
+        cmd.select("medium_lddt", f"({selection}) and ((b <70 and b >50) or (b=50))")
+        cmd.select("low_lddt", f"({selection}) and ((b <50 and b >0 ) or (b=0))")
+    else:
+        cmd.select("high_lddt", f"({selection}) and (b >.90 or b =.90)")
+        cmd.select("normal_lddt", f"({selection}) and ((b <.90 and b >.70) or (b =.70))")
+        cmd.select("medium_lddt", f"({selection}) and ((b <.70 and b >.50) or (b=.50))")
+        cmd.select("low_lddt", f"({selection}) and ((b <.50 and b >0 ) or (b=0))")
+
+    cmd.delete("test_b_scale")
+
+    # set color based on plddt values
+    cmd.set('cartoon_color','high_lddt_c', 'high_lddt')
+    cmd.set('cartoon_color','normal_lddt_c', 'normal_lddt')
+    cmd.set('cartoon_color','medium_lddt_c', 'medium_lddt')
+    cmd.set('cartoon_color','low_lddt_c', 'low_lddt')
+
+    # set background color
+    cmd.bg_color('white')
 
 cmd.extend("coloresm", coloresm)
 cmd.auto_arg[0]["coloresm"] = [cmd.object_sc, "object", ""]
