@@ -1,12 +1,13 @@
+from __future__ import print_function
+
 from pymol import cmd
 import requests
 import re
 import os
-import time
 
 ABS_PATH = os.path.abspath('./')
 
-def query_esmfold(sequence:str, name:str=None):
+def query_esmfold(sequence, name=None):
     """Predict protein structure with ESMFold
 
     Args:
@@ -31,7 +32,7 @@ def query_esmfold(sequence:str, name:str=None):
     if pdb_string.startswith("HEADER"):
         with open(pdb_filename, "w") as out:
             out.write(pdb_string)
-        print(f"Results saved to {pdb_filename}")
+        print("Results saved to %s" %pdb_filename)
     else:
         print(pdb_string)
     cmd.load(pdb_filename)
@@ -57,12 +58,14 @@ def coloresm(selection="all"):
     cmd.set_color("normal_lddt_c", [0.341176470588235,0.792156862745098,0.976470588235294])
     cmd.set_color("medium_lddt_c", [1,0.858823529411765,0.070588235294118])
     cmd.set_color("low_lddt_c", [1,0.494117647058824,0.270588235294118])
-    cmd.color("high_lddt_c", f"({selection}) and b > 0.89")
-    cmd.color("normal_lddt_c", f"({selection}) and b < 0.9 and b > 0.69")
-    cmd.color("medium_lddt_c", f"({selection}) and b < 0.70 and b > 0.49")
-    cmd.color("low_lddt_c", f"({selection}) and b < 0.50")
+    cmd.color("high_lddt_c", "(%s) and b > 0.89" %selection)
+    cmd.color("normal_lddt_c", "(%s) and b < 0.9 and b > 0.69" %selection)
+    cmd.color("medium_lddt_c", "(%s) and b < 0.70 and b > 0.49" %selection)
+    cmd.color("low_lddt_c", "(%s) and b < 0.50" %selection)
 
+query_esmfold.__annotations__ = {'sequence': str}
 
 cmd.extend("coloresm", coloresm)
 cmd.auto_arg[0]["coloresm"] = [cmd.object_sc, "object", ""]
 cmd.extend("esmfold", query_esmfold)
+
