@@ -20,14 +20,14 @@ conda install -c conda-forge pymol-open-source
 
 ```bash
 run https://raw.githubusercontent.com/JinyuanSun/PymolFold/main/predict_structure.py
-# for user still using python2
+# for user still using python2, it is also py3 compatible.
 run https://raw.githubusercontent.com/JinyuanSun/PymolFold/py27/predict_structure.py
-# try command below in China mainland:
+# try the command below in China mainland, the mirror will be delayed if modifications were just made, download the file to your computer and install it is always a good idea:
 run https://raw.staticdn.net/JinyuanSun/PymolFold/main/predict_structure.py
 ```
 
-2. Fold your protein!
-
+2. Fold your protein!  
+The `coloresm` command also returns pymol `selection` object of different confidence levels. The color scheme is now compatible with plddt in range (0, 1) and (0, 100) only if they are consistent in your selection.  
 ```bash
 esmfold GENGEIPLEIRATTGAEVDTRAVTAVEMTEGTLGIFRLPEEDYTALENFRYNRVAGENWKPASTVIYVGGTYARLCAYAPYNSVEFKNSSLKTEAGLTMQTYAAEKDMRFAVSGGDEVWKKTPTANFELKRAYARLVLSVVRDATYPNTCKITKAKIEAFTGNIITANTVDISTGTEGSGTQTPQYIHTVTTGLKDGFAIGLPQQTFSGGVVLTLTVDGMEYSVTIPANKLSTFVRGTKYIVSLAVKGGKLTLMSDKILIDKDWAEVQTGTGGSGDDYDTSFN, test
 coloresm
