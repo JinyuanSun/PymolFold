@@ -20,6 +20,8 @@ conda install -c conda-forge pymol-open-source
 
 ```bash
 run https://raw.githubusercontent.com/JinyuanSun/PymolFold/main/predict_structure.py
+# for user still using python2
+run https://raw.githubusercontent.com/JinyuanSun/PymolFold/py27/predict_structure.py
 # try command below in China mainland:
 run https://raw.staticdn.net/JinyuanSun/PymolFold/main/predict_structure.py
 ```
