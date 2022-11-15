@@ -26,6 +26,37 @@ def cal_plddt(pdb_string: str):
         print("Guessing the scale is [0,100]")
     return sum(plddts) / len(plddts)
 
+def query_pymolfold(sequence: str, num_recycle:int=3, name: str=None):
+    headers = {
+        'accept': 'application/json',
+        'content-type': 'application/x-www-form-urlencoded',
+    }
+    num_recycle = int(num_recycle)
+    params = {
+        'sequence': "'"+sequence+"'",
+        'num_recycles': num_recycle,
+    }
+
+    response = requests.post('http://region-8.seetacloud.com:17537/predict/', params=params, headers=headers)
+
+    if not name:
+            name = sequence[:3] + sequence[-3:]
+    pdb_filename = os.path.join(ABS_PATH, name) + ".pdb"
+    pdb_string = response.content.decode("utf-8")
+    pdb_string = pdb_string.replace('\"',"")
+    if pdb_string.startswith("PARENT N/A\\n"):
+        pdb_string = pdb_string.replace("PARENT N/A\\n", "")
+        with open(pdb_filename, "w") as out:
+            out.write(pdb_string.replace('\\n', '\n'))
+        print(f"Results saved to {pdb_filename}")
+        plddt = cal_plddt(pdb_string)
+        print("="*40)
+        print("    pLDDT: "+"{:.2f}".format(plddt))
+        print("="*40)
+        cmd.load(pdb_filename)
+    else:
+        print(pdb_string)
+
 
 def query_esmfold(sequence: str, name: str = None):
     """Predict protein structure with ESMFold
@@ -116,3 +147,5 @@ def color_plddt(selection="all"):
 cmd.extend("color_plddt", color_plddt)
 cmd.auto_arg[0]["color_plddt"] = [cmd.object_sc, "object", ""]
 cmd.extend("esmfold", query_esmfold)
+cmd.extend("pymolfold", query_pymolfold)
+
