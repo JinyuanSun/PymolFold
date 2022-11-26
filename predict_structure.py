@@ -57,7 +57,6 @@ def query_pymolfold(sequence: str, num_recycle:int=3, name: str=None):
     else:
         print(pdb_string)
 
-
 def query_esmfold(sequence: str, name: str = None):
     """Predict protein structure with ESMFold
 
@@ -92,7 +91,6 @@ def query_esmfold(sequence: str, name: str = None):
         cmd.load(pdb_filename)
     else:
         print(pdb_string)
-
 
 def color_plddt(selection="all"):
 
@@ -143,9 +141,48 @@ def color_plddt(selection="all"):
     # set background color
     cmd.bg_color("white")
 
+def prot_design(selection, name='./target_bb.pdb'):
+    """
+    save 6vg7_bb.pdb, (n. CA or n.  C or n.  N or n.  O) AND 6VG7.A_0001
+
+    Args:
+        selection (_type_): _description_
+    """
+    cmd.save(name,f"(n. CA or n. C or n. N or n. O) AND {selection}")
+    query_mpnn(name)
+
+def query_mpnn(path_to_pdb:str):
+    """query ProteinMPNN server for de novo protein design
+
+    Args:
+        path_to_pdb (str): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    headers = {
+        'accept': 'application/json',
+        # requests won't add a boundary if this header is set when you pass files=
+        # 'Content-Type': 'multipart/form-data',
+    }
+    files = {
+        'file': open(path_to_pdb, 'rb'),
+    }
+
+    response = requests.post('http://region-8.seetacloud.com:17537/mpnn', headers=headers, files=files)
+
+    res = response.content.decode("utf-8")
+
+    d = json.loads(res)
+
+    fasta_string = ""
+    for i, (seq, score, seqid) in enumerate(zip(d['seq'], d['score'], d['seqid'])):
+        fasta_string += f">des_{i},score={score},seqid={seqid}\n{seq}\n"
+    print(fasta_string)
+    return fasta_string
 
 cmd.extend("color_plddt", color_plddt)
 cmd.auto_arg[0]["color_plddt"] = [cmd.object_sc, "object", ""]
 cmd.extend("esmfold", query_esmfold)
 cmd.extend("pymolfold", query_pymolfold)
-
+cmd.extend("cpd", prot_design)

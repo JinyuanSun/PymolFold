@@ -8,7 +8,8 @@ Thanks to ESMFold by Meta and the [API](https://esmatlas.com/about#api).
 Tested under macOS Monterey Version 12.5.1, Python 3.7.12.  
 Open an issue if ran into any errors.  
 
-```
+```git
+26Nov2022: ProteinMPNN is now integrated to design proteins.
 15Nov2022: We now provide an unofficial API to support user defined recycle number and allow sequence length up to 500aa!
 ```
 
@@ -20,7 +21,7 @@ conda install -c conda-forge pymol-open-source
 
 ## Usage
 
-### 1. Load extension into PyMOL. In the PyMOL command prompt:
+### 1. Load extension into PyMOL. In the PyMOL command prompt
 
 ```bash
 run https://raw.githubusercontent.com/JinyuanSun/PymolFold/main/predict_structure.py
@@ -30,23 +31,43 @@ run https://raw.githubusercontent.com/JinyuanSun/PymolFold/py27/predict_structur
 run https://raw.staticdn.net/JinyuanSun/PymolFold/main/predict_structure.py
 ```
 
-### 2. Fold your protein!  
-The `color_plddt` command also returns pymol `selection` object of different confidence levels. The color scheme is now compatible with plddt in range (0, 1) and (0, 100) only if they are consistent in your selection. 
-#### The Meta API (up to 400 aa):  
+### 2. Fold your protein  
+
+The `color_plddt` command also returns pymol `selection` object of different confidence levels. The color scheme is now compatible with plddt in range (0, 1) and (0, 100) only if they are consistent in your selection.
+
+#### The Meta API (up to 400 aa)  
+
 ```bash
 esmfold GENGEIPLEIRATTGAEVDTRAVTAVEMTEGTLGIFRLPEEDYTALENFRYNRVAGENWKPASTVIYVGGTYARLCAYAPYNSVEFKNSSLKTEAGLTMQTYAAEKDMRFAVSGGDEVWKKTPTANFELKRAYARLVLSVVRDATYPNTCKITKAKIEAFTGNIITANTVDISTGTEGSGTQTPQYIHTVTTGLKDGFAIGLPQQTFSGGVVLTLTVDGMEYSVTIPANKLSTFVRGTKYIVSLAVKGGKLTLMSDKILIDKDWAEVQTGTGGSGDDYDTSFN, test
 color_plddt
 orient 
 ray 1280, 960, async=1
 ```
-#### The PymolFold API (up to 500 aa, number of recycle can be set in range (3,24)):
+
+#### The PymolFold API (up to 500 aa, number of recycle can be set in range (3,24))
+
 ```bash
 pymolfold GENGEIPLEIRATTGAEVDTRAVTAVEMTEGTLGIFRLPEEDYTALENFRYNRVAGENWKPASTVIYVGGTYARLCAYAPYNSVEFKNSSLKTEAGLTMQTYAAEKDMRFAVSGGDEVWKKTPTANFELKRAYARLVLSVVRDATYPNTCKITKAKIEAFTGNIITANTVDISTGTEGSGTQTPQYIHTVTTGLKDGFAIGLPQQTFSGGVVLTLTVDGMEYSVTIPANKLSTFVRGTKYIVSLAVKGGKLTLMSDKILIDKDWAEVQTGTGGSGDDYDTSFN, 4, test
 color_plddt
 orient 
 ray 1280, 960, async=1
 ```
-![Screenshot](img/esmfold.png)
+
+![Screenshot0](img/esmfold.png)
+
+### 3. Design Your Protein
+
+Thanks to [`ColabDeisgn`](https://github.com/sokrypton/ColabDesign) by [Sergey O](https://github.com/sokrypton).  
+
+```bash
+fetch 1pga.A
+cpd 1pga.A
+esmfold ATYTLVINGKTVKGTTTTTAANAAAAEAQFKAYAASHGISGTWTFDAATKTFTITE, 1pga_des0
+super 1pga_des0, 1pga.A
+color_plddt 1pga_des0
+```
+
+![Screenshot1](img/des_demo.png)
 
 ## Reference
 
