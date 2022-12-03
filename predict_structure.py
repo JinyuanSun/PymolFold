@@ -2,6 +2,7 @@ from pymol import cmd
 import requests
 import re
 import os
+import json
 
 ABS_PATH = os.path.abspath("./")
 
@@ -148,7 +149,7 @@ def prot_design(selection, name='./target_bb.pdb'):
     Args:
         selection (_type_): _description_
     """
-    cmd.save(name,f"(n. CA or n. C or n. N or n. O) AND {selection}")
+    cmd.save(name, f"(n. CA or n. C or n. N or n. O) AND {selection}")
     query_mpnn(name)
 
 def query_mpnn(path_to_pdb:str):
@@ -181,8 +182,96 @@ def query_mpnn(path_to_pdb:str):
     print(fasta_string)
     return fasta_string
 
+def query_singlemut(path_to_pdb:str, wild, resseq, mut):
+    """query ProteinMPNN server for de novo protein design
+
+    Args:
+        path_to_pdb (str): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    headers = {
+        'accept': 'application/json',
+        # requests won't add a boundary if this header is set when you pass files=
+        # 'Content-Type': 'multipart/form-data',
+    }
+
+    params = {
+        'wild': wild,
+        'resseq': resseq,
+        'mut': mut,
+    }
+
+    files = {
+        'file': open(path_to_pdb, 'rb'),
+    }
+
+    response = requests.post('http://region-8.seetacloud.com:17537/signlemut', params=params, headers=headers, files=files)
+
+    res = response.content.decode("utf-8")
+
+    d = json.loads(res)
+    print(f"================================\n\tmutation: {d['mutation']}, score: {d['score']}\n================================")
+
+    return d
+
+
+def singlemut(selection, wild, resseq, mut, name='./target_bb.pdb'):
+    """
+    save 6vg7_bb.pdb, (n. CA or n.  C or n.  N or n.  O) AND 6VG7.A_0001
+
+    Args:
+        selection (_type_): _description_
+    """
+    cmd.save(name, f"(n. CA or n. C or n. N or n. O) AND {selection}")
+    query_singlemut(name, wild, resseq, mut)
+
+
+def query_dms(path_to_pdb:str):
+    """query ProteinMPNN server for de novo protein design
+
+    Args:
+        path_to_pdb (str): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    headers = {
+        'accept': 'application/json',
+        # requests won't add a boundary if this header is set when you pass files=
+        # 'Content-Type': 'multipart/form-data',
+    }
+    files = {
+        'file': open(path_to_pdb, 'rb'),
+    }
+
+    response = requests.post('http://region-8.seetacloud.com:17537/dms', headers=headers, files=files)
+
+    res = response.content.decode("utf-8")
+
+    d = json.loads(res)
+    with open('dms_results.csv', 'w+') as ofile:
+        ofile.write('mutation,002,010,020,030,ensemble\n')
+        for name, s1, s2, s3, s4, s5 in zip(d['mutation'], d['002'], d['010'], d['020'], d['030'], d['ensemble']):
+            ofile.write(f'{name},{s1},{s2},{s3},{s4},{s5}\n')
+    p = os.path.join(os.getcwd(), 'dms_results.csv')
+    print(f"Results save to '{p}'")
+
+def dms(selection, name='./target_bb.pdb'):
+    """
+    save 6vg7_bb.pdb, (n. CA or n.  C or n.  N or n.  O) AND 6VG7.A_0001
+
+    Args:
+        selection (_type_): _description_
+    """
+    cmd.save(name, f"(n. CA or n. C or n. N or n. O) AND {selection}")
+    query_dms(name)
+
 cmd.extend("color_plddt", color_plddt)
 cmd.auto_arg[0]["color_plddt"] = [cmd.object_sc, "object", ""]
 cmd.extend("esmfold", query_esmfold)
 cmd.extend("pymolfold", query_pymolfold)
 cmd.extend("cpd", prot_design)
+cmd.extend("singlemut", singlemut)
+cmd.extend("dms", dms)
