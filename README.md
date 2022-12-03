@@ -33,6 +33,8 @@ run https://raw.staticdn.net/JinyuanSun/PymolFold/main/predict_structure.py
 
 ### 2. Fold your protein  
 
+[webapp avaiable here](http://106.54.97.94:8501/)
+
 The `color_plddt` command also returns pymol `selection` object of different confidence levels. The color scheme is now compatible with plddt in range (0, 1) and (0, 100) only if they are consistent in your selection.
 
 #### The Meta API (up to 400 aa)  
@@ -57,17 +59,61 @@ ray 1280, 960, async=1
 
 ### 3. Design Your Protein
 
+[Webapp in progress]
+
 Thanks to [`ColabDeisgn`](https://github.com/sokrypton/ColabDesign) by [Sergey O](https://github.com/sokrypton).  
 
+#### cpd for sequence generation
+
+Use `cpd` to design seqeunces will fold into the target structure:
+
 ```bash
+# commands
 fetch 1pga.A
 cpd 1pga.A
-esmfold ATYTLVINGKTVKGTTTTTAANAAAAEAQFKAYAASHGISGTWTFDAATKTFTITE, 1pga_des0
+# output looks like:
+# >des_0,score=0.72317,seqid=0.6607
+# PTYKLIINGKKIKGEISVEAPDAKTAEKIFKNYAKENGVNGKWTYDESTKTFTIEE
+# >des_1,score=0.73929,seqid=0.6250
+# PTYTLVVNGKKIKGTRSVEAPNAAVAEKIFKQWAKENGVNGTWTYDASTKTFTVTE
+# >des_2,score=0.72401,seqid=0.6429
+# PTYTLKINGKKIKGEISVEAPNAEEAEKIFKQYAKDHGVNGKWTYDASTKTFTVTE
+```
+
+Using `esmfold` to examin the `des_0`:
+
+```python
+# commands
+esmfold PTYKLIINGKKIKGEISVEAPDAKTAEKIFKNYAKENGVNGKWTYDESTKTFTIEE, 1pga_des0
 super 1pga_des0, 1pga.A
 color_plddt 1pga_des0
 ```
 
 ![Screenshot1](img/des_demo.png)
+
+#### `singlemut` for scoring a signle mutation
+
+```python
+# commands
+fetch 1pga.A
+singlemut 1pga.A, A, 26, F
+# output maybe (not deterministic):
+# ================================
+# mutation: A_26_F, score: -0.0877
+# ================================
+```
+
+#### `dms` for *in silico* deep mutational scan
+
+```python
+# commands
+fetch 1pga.A
+select resi 1-10
+dms sele
+# this might took ~1 min, be pacient ; )
+# output:
+# Results save to '/pat/to/working/dir/dms_results.csv'
+```
 
 ## Reference
 
