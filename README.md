@@ -57,14 +57,14 @@ orient
 ray 1280, 960, async=1
 ```
 
-![Screenshot0](img/esmfold.png)
+<img src="./img/esmfold.png" width="400">
+<!-- ![Screenshot0](img/esmfold.png) -->
 
 ### 3. Design Your Protein
 
 Thanks to [`ColabDeisgn`](https://github.com/sokrypton/ColabDesign) by [Sergey O](https://github.com/sokrypton).  
 
 #### cpd for sequence generation [`Webapp`](http://106.54.97.94:8501/Protein_Design)
-
 
 Use `cpd` to design seqeunces will fold into the target structure:
 
@@ -90,7 +90,8 @@ super 1pga_des0, 1pga.A
 color_plddt 1pga_des0
 ```
 
-![Screenshot1](img/des_demo.png)
+<img src="./img/des_demo.png" width="400">
+<!-- ![Screenshot1](img/des_demo.png) -->
 
 #### `singlemut` for scoring a signle mutation [`Webapp`](http://106.54.97.94:8501/Single_Point_Mutation)
 
