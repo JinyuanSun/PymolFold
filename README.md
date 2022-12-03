@@ -9,6 +9,7 @@ Tested under macOS Monterey Version 12.5.1, Python 3.7.12.
 Open an issue if ran into any errors.  
 
 ```git
+03Dec2022: Add `dms`, `singlemut`, and `webapps`. `pymolfold` allow sequence length up to 700aa.
 26Nov2022: ProteinMPNN is now integrated to design proteins.
 15Nov2022: We now provide an unofficial API to support user defined recycle number and allow sequence length up to 500aa!
 ```
@@ -60,11 +61,10 @@ ray 1280, 960, async=1
 
 ### 3. Design Your Protein
 
-[Webapp in progress]
-
 Thanks to [`ColabDeisgn`](https://github.com/sokrypton/ColabDesign) by [Sergey O](https://github.com/sokrypton).  
 
-#### cpd for sequence generation
+#### cpd for sequence generation [`Webapp`](http://106.54.97.94:8501/Protein_Design)
+
 
 Use `cpd` to design seqeunces will fold into the target structure:
 
@@ -92,7 +92,7 @@ color_plddt 1pga_des0
 
 ![Screenshot1](img/des_demo.png)
 
-#### `singlemut` for scoring a signle mutation
+#### `singlemut` for scoring a signle mutation [`Webapp`](http://106.54.97.94:8501/Single_Point_Mutation)
 
 ```python
 # commands
@@ -104,7 +104,7 @@ singlemut 1pga.A, A, 26, F
 # ================================
 ```
 
-#### `dms` for *in silico* deep mutational scan
+#### `dms` for *in silico* deep mutational scan [`Webapp`](http://106.54.97.94:8501/Deep_Mutation_Scan)
 
 ```python
 # commands
