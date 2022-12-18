@@ -141,3 +141,5 @@ URL = {https://www.science.org/doi/abs/10.1126/science.add2187}
 }
 
 ```
+
+PyMOL is a trademark of Schrodinger, LLC.
