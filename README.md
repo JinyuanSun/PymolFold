@@ -34,7 +34,7 @@ run https://raw.staticdn.net/JinyuanSun/PymolFold/main/predict_structure.py
 
 ### 2. Fold your protein  
 
-[webapp avaiable at here](http://106.54.97.94:8501/), in case someone struggles with using PyMOL.  
+[webapp avaiable at here](http://103.79.77.89:8501/), in case someone struggles with using PyMOL.  
 Also, check META's [web app](https://esmatlas.com/resources?action=fold)
 
 The `color_plddt` command also returns pymol `selection` object of different confidence levels. The color scheme is now compatible with plddt in range (0, 1) and (0, 100) only if they are consistent in your selection.
@@ -64,7 +64,7 @@ ray 1280, 960, async=1
 
 Thanks to [`ColabDeisgn`](https://github.com/sokrypton/ColabDesign) by [Sergey O](https://github.com/sokrypton).  
 
-#### cpd for sequence generation [`Webapp`](http://106.54.97.94:8501/Protein_Design)
+#### cpd for sequence generation [`Webapp`](http://103.79.77.89:8501/Protein_Design)
 
 Use `cpd` to design seqeunces will fold into the target structure:
 
@@ -93,7 +93,7 @@ color_plddt 1pga_des0
 <img src="./img/des_demo.png" width="400">
 <!-- ![Screenshot1](img/des_demo.png) -->
 
-#### `singlemut` for scoring a signle mutation [`Webapp`](http://106.54.97.94:8501/Single_Point_Mutation)
+#### `singlemut` for scoring a signle mutation [`Webapp`](http://103.79.77.89:8501/Single_Point_Mutation)
 
 ```python
 # commands
@@ -105,7 +105,7 @@ singlemut 1pga.A, A, 26, F
 # ================================
 ```
 
-#### `dms` for *in silico* deep mutational scan [`Webapp`](http://106.54.97.94:8501/Deep_Mutation_Scan)
+#### `dms` for *in silico* deep mutational scan [`Webapp`](http://103.79.77.89:8501/Deep_Mutation_Scan)
 
 ```python
 # commands
