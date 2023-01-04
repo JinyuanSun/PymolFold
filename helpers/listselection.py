@@ -26,13 +26,13 @@ def listselection (selection, output="N", HOH="Y"):
 				printedselection+="%s/%s/%s/%s\n" % (objs[a], m1.atom[x].chain, m1.atom[x].resn, m1.atom[x].resi)
 				counter+=1
 				
-	print "Residues in '%s%s': %s" % (selection, extra, counter)
-	if output=="S": print printedselection
+	print("Residues in '%s%s': %s" % (selection, extra, counter))
+	if output=="S": print(printedselection)
 	if output=="P":
 		f=open('listselection_'+selection+'.txt','w')
 		f.write("Residues in '%s%s': %s\n" % (selection, extra, counter))
 		f.write(printedselection)
 		f.close()
-		print "Results saved in listselection_%s.txt" % selection
+		print("Results saved in listselection_%s.txt" % selection)
 		
 cmd.extend('listselection',listselection)
