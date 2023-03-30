@@ -170,7 +170,7 @@ def query_mpnn(path_to_pdb:str):
         'file': open(path_to_pdb, 'rb'),
     }
 
-    response = requests.post('http://region-8.seetacloud.com:17537/mpnn', headers=headers, files=files)
+    response = requests.post('http://region-8.seetacloud.com:19272/mpnn', headers=headers, files=files)
 
     res = response.content.decode("utf-8")
 
@@ -207,7 +207,7 @@ def query_singlemut(path_to_pdb:str, wild, resseq, mut):
         'file': open(path_to_pdb, 'rb'),
     }
 
-    response = requests.post('http://region-8.seetacloud.com:17537/signlemut', params=params, headers=headers, files=files)
+    response = requests.post('http://region-8.seetacloud.com:19272/signlemut', params=params, headers=headers, files=files)
 
     res = response.content.decode("utf-8")
 
@@ -246,7 +246,7 @@ def query_dms(path_to_pdb:str):
         'file': open(path_to_pdb, 'rb'),
     }
 
-    response = requests.post('http://region-8.seetacloud.com:17537/dms', headers=headers, files=files)
+    response = requests.post('http://region-8.seetacloud.com:19272/dms', headers=headers, files=files)
 
     res = response.content.decode("utf-8")
 
