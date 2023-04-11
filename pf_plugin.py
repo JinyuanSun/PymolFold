@@ -7,20 +7,17 @@ import json
 BASE_URL = "http://region-8.seetacloud.com:19272/"
 ABS_PATH = os.path.abspath("./")
 
+
 def listselection(selection, HOH="N"):
-    extra=""
-    counter=0
-    sel=selection
-    objs=cmd.get_object_list(sel)
+    sel = selection
+    objs = cmd.get_object_list(sel)
     list_sele = []
-    if HOH=="N":
-        sel=selection+" and not resn HOH"
-        extra=", without HOH"
+    sel = selection+" and not resn HOH"
 
     for a in range(len(objs)):
-        m1=cmd.get_model(sel+" and "+objs[a])
+        m1 = cmd.get_model(sel+" and "+objs[a])
     for x in range(len(m1.atom)):
-        if m1.atom[x-1].resi!=m1.atom[x].resi:
+        if m1.atom[x-1].resi != m1.atom[x].resi:
             list_sele.append(m1.atom[x].resn)
     print(",".join(list_sele))
     return ",".join(list_sele)
@@ -219,7 +216,6 @@ def query_dms(path_to_pdb: str):
 
 
 def color_plddt(selection="all"):
-
     """
     AUTHOR
     Jinyuan Sun
@@ -237,7 +233,8 @@ def color_plddt(selection="all"):
     """
     # Alphafold color scheme for plddt
     cmd.set_color("high_lddt_c", [0, 0.325490196078431, 0.843137254901961])
-    cmd.set_color("normal_lddt_c", [0.341176470588235, 0.792156862745098, 0.976470588235294])
+    cmd.set_color("normal_lddt_c", [
+                  0.341176470588235, 0.792156862745098, 0.976470588235294])
     cmd.set_color("medium_lddt_c", [1, 0.858823529411765, 0.070588235294118])
     cmd.set_color("low_lddt_c", [1, 0.494117647058824, 0.270588235294118])
 
@@ -247,14 +244,20 @@ def color_plddt(selection="all"):
 
     if b_scale > 0:
         cmd.select("high_lddt", f"({selection}) and (b >90 or b =90)")
-        cmd.select("normal_lddt", f"({selection}) and ((b <90 and b >70) or (b =70))")
-        cmd.select("medium_lddt", f"({selection}) and ((b <70 and b >50) or (b=50))")
-        cmd.select("low_lddt", f"({selection}) and ((b <50 and b >0 ) or (b=0))")
+        cmd.select("normal_lddt",
+                   f"({selection}) and ((b <90 and b >70) or (b =70))")
+        cmd.select("medium_lddt",
+                   f"({selection}) and ((b <70 and b >50) or (b=50))")
+        cmd.select(
+            "low_lddt", f"({selection}) and ((b <50 and b >0 ) or (b=0))")
     else:
         cmd.select("high_lddt", f"({selection}) and (b >.90 or b =.90)")
-        cmd.select("normal_lddt", f"({selection}) and ((b <.90 and b >.70) or (b =.70))")
-        cmd.select("medium_lddt", f"({selection}) and ((b <.70 and b >.50) or (b=.50))")
-        cmd.select("low_lddt", f"({selection}) and ((b <.50 and b >0 ) or (b=0))")
+        cmd.select("normal_lddt",
+                   f"({selection}) and ((b <.90 and b >.70) or (b =.70))")
+        cmd.select("medium_lddt",
+                   f"({selection}) and ((b <.70 and b >.50) or (b=.50))")
+        cmd.select(
+            "low_lddt", f"({selection}) and ((b <.50 and b >0 ) or (b=0))")
 
     cmd.delete("test_b_scale")
 
@@ -268,7 +271,6 @@ def color_plddt(selection="all"):
     cmd.bg_color("white")
 
 
-
 def prot_design(selection, name='./target_bb.pdb', fix_pos=None, chain=None, rm_aa=None, inverse=False, homooligomeric=False):
     """
     save 6vg7_bb.pdb, (n. CA or n.  C or n.  N or n.  O) AND 6VG7.A_0001
@@ -277,7 +279,9 @@ def prot_design(selection, name='./target_bb.pdb', fix_pos=None, chain=None, rm_
         selection (_type_): _description_
     """
     cmd.save(name, f"(n. CA or n. C or n. N or n. O) AND {selection}")
-    query_mpnn(name, fix_pos=fix_pos, chain=chain, rm_aa=rm_aa, inverse=inverse, homooligomeric=homooligomeric)
+    query_mpnn(name, fix_pos=fix_pos, chain=chain, rm_aa=rm_aa,
+               inverse=inverse, homooligomeric=homooligomeric)
+
 
 def singlemut(selection, wild, resseq, mut, name='./target_bb.pdb'):
     """
@@ -288,6 +292,7 @@ def singlemut(selection, wild, resseq, mut, name='./target_bb.pdb'):
     """
     cmd.save(name, f"(n. CA or n. C or n. N or n. O) AND {selection}")
     query_singlemut(name, wild, resseq, mut)
+
 
 def dms(selection, name='./target_bb.pdb'):
     """
