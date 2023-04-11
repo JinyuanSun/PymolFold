@@ -7,6 +7,25 @@ import json
 BASE_URL = "http://region-8.seetacloud.com:19272/"
 ABS_PATH = os.path.abspath("./")
 
+def listselection(selection, HOH="N"):
+	extra=""
+	counter=0
+	sel=selection
+	objs=cmd.get_object_list(sel)
+    list_sele = []
+
+	if HOH=="N":
+		sel=selection+" and not resn HOH"
+		extra=", without HOH"
+	
+	for a in range(len(objs)):
+		m1=cmd.get_model(sel+" and "+objs[a])
+		for x in range(len(m1.atom)):
+			if m1.atom[x-1].resi!=m1.atom[x].resi:
+                list_sele.append(m1.atom[x].resn)
+    print(",".join(list_sele))
+    return ",".join(list_sele)
+
 
 def cal_plddt(pdb_string: str):
     """read b-factors of ca
