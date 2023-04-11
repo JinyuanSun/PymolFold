@@ -8,7 +8,7 @@ BASE_URL = "http://region-8.seetacloud.com:19272/"
 ABS_PATH = os.path.abspath("./")
 
 
-def listselection(selection, HOH="N"):
+def ls_fix(selection, HOH="N"):
     sel = selection
     objs = cmd.get_object_list(sel)
     list_sele = []
@@ -312,3 +312,4 @@ cmd.extend("pymolfold", query_pymolfold)
 cmd.extend("cpd", prot_design)
 cmd.extend("singlemut", singlemut)
 cmd.extend("dms", dms)
+cmd.extend("ls_fix", ls_fix)
