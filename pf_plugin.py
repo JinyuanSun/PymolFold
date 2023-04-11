@@ -4,6 +4,7 @@ import re
 import os
 import json
 
+BASE_URL = "http://region-8.seetacloud.com:19272/"
 ABS_PATH = os.path.abspath("./")
 
 
@@ -21,13 +22,14 @@ def cal_plddt(pdb_string: str):
             plddt = float(line[60:66])
             plddts.append(plddt)
     if max(plddts) <= 1.0:
-        plddts =[ plddt * 100 for plddt in plddts]
+        plddts = [plddt * 100 for plddt in plddts]
         print("Guessing the scale is [0,1], we scale it to [0, 100]")
     else:
         print("Guessing the scale is [0,100]")
     return sum(plddts) / len(plddts)
 
-def query_pymolfold(sequence: str, num_recycle:int=3, name: str=None):
+
+def query_pymolfold(sequence: str, num_recycle: int = 3, name: str = None):
     headers = {
         'accept': 'application/json',
         'content-type': 'application/x-www-form-urlencoded',
@@ -38,13 +40,14 @@ def query_pymolfold(sequence: str, num_recycle:int=3, name: str=None):
         'num_recycles': num_recycle,
     }
 
-    response = requests.post('http://region-8.seetacloud.com:17537/predict/', params=params, headers=headers)
+    response = requests.post(f"{BASE_URL}predict/",
+                             params=params, headers=headers, timeout=1000)
 
     if not name:
-            name = sequence[:3] + sequence[-3:]
+        name = sequence[:3] + sequence[-3:]
     pdb_filename = os.path.join(ABS_PATH, name) + ".pdb"
     pdb_string = response.content.decode("utf-8")
-    pdb_string = pdb_string.replace('\"',"")
+    pdb_string = pdb_string.replace('\"', "")
     if pdb_string.startswith("PARENT N/A\\n"):
         pdb_string = pdb_string.replace("PARENT N/A\\n", "")
         with open(pdb_filename, "w") as out:
@@ -57,6 +60,7 @@ def query_pymolfold(sequence: str, num_recycle:int=3, name: str=None):
         cmd.load(pdb_filename)
     else:
         print(pdb_string)
+
 
 def query_esmfold(sequence: str, name: str = None):
     """Predict protein structure with ESMFold
@@ -92,6 +96,109 @@ def query_esmfold(sequence: str, name: str = None):
         cmd.load(pdb_filename)
     else:
         print(pdb_string)
+
+
+def query_mpnn(path_to_pdb: str, fix_pos=None, chain=None, rm_aa=None, inverse=False, homooligomeric=False):
+    """query ProteinMPNN server for de novo protein design
+
+    Args:
+        path_to_pdb (str): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    headers = {
+        'accept': 'application/json',
+    }
+    files = {
+        'file': open(path_to_pdb, 'rb'),
+    }
+
+    params = {
+        "fix_pos": fix_pos,
+        "chain": chain,
+        "rm_aa": rm_aa,
+        "inverse": inverse,
+        "homooligomeric": homooligomeric,
+    }
+
+    response = requests.post(
+        f"{BASE_URL}mpnn", headers=headers, files=files, params=params)
+
+    res = response.content.decode("utf-8")
+
+    d = json.loads(res)
+
+    fasta_string = ""
+    for i, (seq, score, seqid) in enumerate(zip(d['seq'], d['score'], d['seqid'])):
+        fasta_string += f">des_{i},score={score},seqid={seqid}\n{seq}\n"
+    print(fasta_string)
+    return fasta_string
+
+
+def query_singlemut(path_to_pdb: str, wild, resseq, mut):
+    """query ProteinMPNN server for de novo protein design
+
+    Args:
+        path_to_pdb (str): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    headers = {
+        'accept': 'application/json',
+    }
+
+    params = {
+        'wild': wild,
+        'resseq': resseq,
+        'mut': mut,
+    }
+
+    files = {
+        'file': open(path_to_pdb, 'rb'),
+    }
+
+    response = requests.post(f'{BASE_URL}signlemut',
+                             params=params, headers=headers, files=files)
+
+    res = response.content.decode("utf-8")
+
+    d = json.loads(res)
+    print(
+        f"================================\n\tmutation: {d['mutation']}, score: {d['score']}\n================================")
+
+    return d
+
+
+def query_dms(path_to_pdb: str):
+    """query ProteinMPNN server for de novo protein design
+
+    Args:
+        path_to_pdb (str): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    headers = {
+        'accept': 'application/json',
+    }
+    files = {
+        'file': open(path_to_pdb, 'rb'),
+    }
+
+    response = requests.post(f'{BASE_URL}dms', headers=headers, files=files)
+
+    res = response.content.decode("utf-8")
+
+    d = json.loads(res)
+    with open('dms_results.csv', 'w+') as ofile:
+        ofile.write('mutation,002,010,020,030,ensemble\n')
+        for name, s1, s2, s3, s4, s5 in zip(d['mutation'], d['002'], d['010'], d['020'], d['030'], d['ensemble']):
+            ofile.write(f'{name},{s1},{s2},{s3},{s4},{s5}\n')
+    p = os.path.join(os.getcwd(), 'dms_results.csv')
+    print(f"Results save to '{p}'")
+
 
 def color_plddt(selection="all"):
 
@@ -142,7 +249,9 @@ def color_plddt(selection="all"):
     # set background color
     cmd.bg_color("white")
 
-def prot_design(selection, name='./target_bb.pdb'):
+
+
+def prot_design(selection, name='./target_bb.pdb', fix_pos=None, chain=None, rm_aa=None, inverse=False, homooligomeric=False):
     """
     save 6vg7_bb.pdb, (n. CA or n.  C or n.  N or n.  O) AND 6VG7.A_0001
 
@@ -150,72 +259,7 @@ def prot_design(selection, name='./target_bb.pdb'):
         selection (_type_): _description_
     """
     cmd.save(name, f"(n. CA or n. C or n. N or n. O) AND {selection}")
-    query_mpnn(name)
-
-def query_mpnn(path_to_pdb:str):
-    """query ProteinMPNN server for de novo protein design
-
-    Args:
-        path_to_pdb (str): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    headers = {
-        'accept': 'application/json',
-        # requests won't add a boundary if this header is set when you pass files=
-        # 'Content-Type': 'multipart/form-data',
-    }
-    files = {
-        'file': open(path_to_pdb, 'rb'),
-    }
-
-    response = requests.post('http://region-8.seetacloud.com:19272/mpnn', headers=headers, files=files)
-
-    res = response.content.decode("utf-8")
-
-    d = json.loads(res)
-
-    fasta_string = ""
-    for i, (seq, score, seqid) in enumerate(zip(d['seq'], d['score'], d['seqid'])):
-        fasta_string += f">des_{i},score={score},seqid={seqid}\n{seq}\n"
-    print(fasta_string)
-    return fasta_string
-
-def query_singlemut(path_to_pdb:str, wild, resseq, mut):
-    """query ProteinMPNN server for de novo protein design
-
-    Args:
-        path_to_pdb (str): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    headers = {
-        'accept': 'application/json',
-        # requests won't add a boundary if this header is set when you pass files=
-        # 'Content-Type': 'multipart/form-data',
-    }
-
-    params = {
-        'wild': wild,
-        'resseq': resseq,
-        'mut': mut,
-    }
-
-    files = {
-        'file': open(path_to_pdb, 'rb'),
-    }
-
-    response = requests.post('http://region-8.seetacloud.com:19272/signlemut', params=params, headers=headers, files=files)
-
-    res = response.content.decode("utf-8")
-
-    d = json.loads(res)
-    print(f"================================\n\tmutation: {d['mutation']}, score: {d['score']}\n================================")
-
-    return d
-
+    query_mpnn(name, fix_pos=fix_pos, chain=chain, rm_aa=rm_aa, inverse=inverse, homooligomeric=homooligomeric)
 
 def singlemut(selection, wild, resseq, mut, name='./target_bb.pdb'):
     """
@@ -227,37 +271,6 @@ def singlemut(selection, wild, resseq, mut, name='./target_bb.pdb'):
     cmd.save(name, f"(n. CA or n. C or n. N or n. O) AND {selection}")
     query_singlemut(name, wild, resseq, mut)
 
-
-def query_dms(path_to_pdb:str):
-    """query ProteinMPNN server for de novo protein design
-
-    Args:
-        path_to_pdb (str): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    headers = {
-        'accept': 'application/json',
-        # requests won't add a boundary if this header is set when you pass files=
-        # 'Content-Type': 'multipart/form-data',
-    }
-    files = {
-        'file': open(path_to_pdb, 'rb'),
-    }
-
-    response = requests.post('http://region-8.seetacloud.com:19272/dms', headers=headers, files=files)
-
-    res = response.content.decode("utf-8")
-
-    d = json.loads(res)
-    with open('dms_results.csv', 'w+') as ofile:
-        ofile.write('mutation,002,010,020,030,ensemble\n')
-        for name, s1, s2, s3, s4, s5 in zip(d['mutation'], d['002'], d['010'], d['020'], d['030'], d['ensemble']):
-            ofile.write(f'{name},{s1},{s2},{s3},{s4},{s5}\n')
-    p = os.path.join(os.getcwd(), 'dms_results.csv')
-    print(f"Results save to '{p}'")
-
 def dms(selection, name='./target_bb.pdb'):
     """
     save 6vg7_bb.pdb, (n. CA or n.  C or n.  N or n.  O) AND 6VG7.A_0001
@@ -267,6 +280,7 @@ def dms(selection, name='./target_bb.pdb'):
     """
     cmd.save(name, f"(n. CA or n. C or n. N or n. O) AND {selection}")
     query_dms(name)
+
 
 cmd.extend("color_plddt", color_plddt)
 cmd.auto_arg[0]["color_plddt"] = [cmd.object_sc, "object", ""]

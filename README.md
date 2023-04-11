@@ -9,6 +9,7 @@ Tested under macOS Monterey Version 12.5.1, Python 3.7.12.
 Open an issue if ran into any errors.  
 
 ```git
+11Apr2023: `pf_plugin.py` is the PyMOL plugin and the `pf_pkg.py` is a pymol-free python package.
 03Dec2022: Add `dms`, `singlemut`, and `webapps`. `pymolfold` allow sequence length up to 700aa.
 26Nov2022: ProteinMPNN is now integrated to design proteins.
 15Nov2022: We now provide an unofficial API to support user defined recycle number and allow sequence length up to 500aa!
@@ -25,11 +26,11 @@ conda install -c conda-forge pymol-open-source
 ### 1. Load extension into PyMOL. In the PyMOL command prompt
 
 ```bash
-run https://raw.githubusercontent.com/JinyuanSun/PymolFold/main/predict_structure.py
+run https://raw.githubusercontent.com/JinyuanSun/PymolFold/main/pf_plugin.py
 # for user still using python2, it is also py3 compatible, only esmfold supports.
 run https://raw.githubusercontent.com/JinyuanSun/PymolFold/py27/predict_structure.py
 # try the command below in China mainland, the mirror will be delayed if modifications were just made, download the file to your computer and install it is always a good idea:
-run https://raw.staticdn.net/JinyuanSun/PymolFold/main/predict_structure.py
+run https://raw.staticdn.net/JinyuanSun/PymolFold/main/pf_plugin.py
 ```
 
 ### 2. Fold your protein  
@@ -118,28 +119,31 @@ dms sele
 ```
 
 ## Reference
-
+ESMFold:
 ```bibtex
-@article{lin2022language,
-  title={Language models of protein sequences at the scale of evolution enable accurate structure prediction},
-  author={Lin, Zeming and Akin, Halil and Rao, Roshan and Hie, Brian and Zhu, Zhongkai and Lu, Wenting and dos Santos Costa, Allan and Fazel-Zarandi, Maryam and Sercu, Tom and Candido, Sal and others},
-  journal={bioRxiv},
+@article{lin2023evolutionary,
+  title={Evolutionary-scale prediction of atomic-level protein structure with a language model},
+  author={Lin, Zeming and Akin, Halil and Rao, Roshan and Hie, Brian and Zhu, Zhongkai and Lu, Wenting and Smetanin, Nikita and Verkuil, Robert and Kabeli, Ori and Shmueli, Yaniv and others},
+  journal={Science},
+  volume={379},
+  number={6637},
+  pages={1123--1130},
+  year={2023},
+  publisher={American Association for the Advancement of Science}
+}
+```
+ProteinMPNN:
+```bibtex
+@article{dauparas2022robust,
+  title={Robust deep learning--based protein sequence design using ProteinMPNN},
+  author={Dauparas, Justas and Anishchenko, Ivan and Bennett, Nathaniel and Bai, Hua and Ragotte, Robert J and Milles, Lukas F and Wicky, Basile IM and Courbet, Alexis and de Haas, Rob J and Bethel, Neville and others},
+  journal={Science},
+  volume={378},
+  number={6615},
+  pages={49--56},
   year={2022},
-  publisher={Cold Spring Harbor Laboratory}
+  publisher={American Association for the Advancement of Science}
 }
-@article{
-doi:10.1126/science.add2187,
-author = {J. Dauparas  and I. Anishchenko  and N. Bennett  and H. Bai  and R. J. Ragotte  and L. F. Milles  and B. I. M. Wicky  and A. Courbet  and R. J. de Haas  and N. Bethel  and P. J. Y. Leung  and T. F. Huddy  and S. Pellock  and D. Tischer  and F. Chan  and B. Koepnick  and H. Nguyen  and A. Kang  and B. Sankaran  and A. K. Bera  and N. P. King  and D. Baker },
-title = {Robust deep learning-based protein sequence design using ProteinMPNN},
-journal = {Science},
-volume = {378},
-number = {6615},
-pages = {49-56},
-year = {2022},
-doi = {10.1126/science.add2187},
-URL = {https://www.science.org/doi/abs/10.1126/science.add2187}
-}
-
 ```
 
 PyMOL is a trademark of Schrodinger, LLC.
