@@ -18,7 +18,7 @@ def ls_fix(selection, HOH="N"):
         m1 = cmd.get_model(sel+" and "+objs[a])
     for x in range(len(m1.atom)):
         if m1.atom[x-1].resi != m1.atom[x].resi:
-            list_sele.append(m1.atom[x].resn)
+            list_sele.append(m1.atom[x].resi)
     print(",".join(list_sele))
     return ",".join(list_sele)
 
