@@ -45,26 +45,23 @@ def cal_plddt(pdb_string: str):
 
 
 def query_pymolfold(sequence: str, num_recycle: int = 3, name: str = None):
-    headers = {
-        'accept': 'application/json',
-        'content-type': 'application/x-www-form-urlencoded',
-    }
     num_recycle = int(num_recycle)
-    params = {
-        'sequence': "'"+sequence+"'",
+    data = {
+        'sequence': sequence,
         'num_recycles': num_recycle,
     }
 
     response = requests.post(f"{BASE_URL}predict/",
-                             params=params, headers=headers, timeout=1000)
+                             json=data, timeout=1000)
+    
 
     if not name:
         name = sequence[:3] + sequence[-3:]
     pdb_filename = os.path.join(ABS_PATH, name) + ".pdb"
-    pdb_string = response.content.decode("utf-8")
+    pdb_string = response.json()['output']
     pdb_string = pdb_string.replace('\"', "")
-    if pdb_string.startswith("PARENT N/A\\n"):
-        pdb_string = pdb_string.replace("PARENT N/A\\n", "")
+    if pdb_string.startswith("PARENT"):
+        pdb_string = pdb_string.replace("PARENT N/A\n", "")
         with open(pdb_filename, "w") as out:
             out.write(pdb_string.replace('\\n', '\n'))
         print(f"Results saved to {pdb_filename}")
@@ -130,7 +127,7 @@ def query_mpnn(path_to_pdb: str, fix_pos=None, chain=None, rm_aa=None, inverse=F
     }
 
     params = {
-        "fix_pos": fix_pos,
+        "fix_pos": fix_pos.replace('"', ""),
         "chain": chain,
         "rm_aa": rm_aa,
         "inverse": inverse,
@@ -138,8 +135,8 @@ def query_mpnn(path_to_pdb: str, fix_pos=None, chain=None, rm_aa=None, inverse=F
     }
 
     response = requests.post(
-        f"{BASE_URL}mpnn", headers=headers, files=files, params=params)
-
+        f"{BASE_URL}mpnn/", headers=headers, files=files, params=params)
+    # print(response.content.decode("utf-8"))
     res = response.content.decode("utf-8")
 
     d = json.loads(res)
@@ -174,7 +171,7 @@ def query_singlemut(path_to_pdb: str, wild, resseq, mut):
         'file': open(path_to_pdb, 'rb'),
     }
 
-    response = requests.post(f'{BASE_URL}signlemut',
+    response = requests.post(f'{BASE_URL}signlemut/',
                              params=params, headers=headers, files=files)
 
     res = response.content.decode("utf-8")
@@ -202,7 +199,7 @@ def query_dms(path_to_pdb: str):
         'file': open(path_to_pdb, 'rb'),
     }
 
-    response = requests.post(f'{BASE_URL}dms', headers=headers, files=files)
+    response = requests.post(f'{BASE_URL}dms/', headers=headers, files=files)
 
     res = response.content.decode("utf-8")
 
@@ -279,6 +276,7 @@ def prot_design(selection, name='./target_bb.pdb', fix_pos=None, chain=None, rm_
         selection (_type_): _description_
     """
     cmd.save(name, f"(n. CA or n. C or n. N or n. O) AND {selection}")
+    print(fix_pos, chain, rm_aa, inverse, homooligomeric)
     query_mpnn(name, fix_pos=fix_pos, chain=chain, rm_aa=rm_aa,
                inverse=inverse, homooligomeric=homooligomeric)
 
