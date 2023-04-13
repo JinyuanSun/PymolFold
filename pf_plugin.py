@@ -126,8 +126,11 @@ def query_mpnn(path_to_pdb: str, fix_pos=None, chain=None, rm_aa=None, inverse=F
         'file': open(path_to_pdb, 'rb'),
     }
 
+    if fix_pos:
+        fix_pos = fix_pos.replace('"', "")
+
     params = {
-        "fix_pos": fix_pos.replace('"', ""),
+        "fix_pos": fix_pos,
         "chain": chain,
         "rm_aa": rm_aa,
         "inverse": inverse,

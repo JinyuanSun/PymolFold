@@ -5,8 +5,11 @@ Inspired by [ColabFold](https://github.com/sokrypton/ColabFold) by [Sergey O](ht
 Visualization inspired by [pymol-color-alphafold](https://github.com/cbalbin-bio/pymol-color-alphafold).  
 Thanks to ESMFold by Meta and the [API](https://esmatlas.com/about#api).  
 
-Tested under macOS Monterey Version 12.5.1, Python 3.7.12.  
-Open an issue if ran into any errors.  
+**Issues and Errors**  
+If you encounter any errors or issues while using this project, please don't hesitate to open an issue here on GitHub. Your feedback helps us improve the project and make it more user-friendly for everyone.
+
+**PymolFold Server: A Shared Resource**  
+Please note that the PymolFold server is a shared resource, and we request you to use it responsibly. Do not abuse the server, as it can affect the availability and performance of the service for other users.
 
 ```git
 11Apr2023: `pf_plugin.py` is the PyMOL plugin and the `pf_pkg.py` is a pymol-free python package.
