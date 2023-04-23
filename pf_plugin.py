@@ -4,7 +4,7 @@ import re
 import os
 import json
 
-BASE_URL = "http://region-8.seetacloud.com:19272/"
+BASE_URL = "http://region-9.seetacloud.com:34525/"
 ABS_PATH = os.path.abspath("./")
 
 
