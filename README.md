@@ -6,7 +6,7 @@ Visualization inspired by [pymol-color-alphafold](https://github.com/cbalbin-bio
 Thanks to ESMFold by Meta and the [API](https://esmatlas.com/about#api).  
 
 **Info**  
-Due to limited funding, the PymolFold service will be downgraded to a T4 instance. As a result, the maximum sequence length supported is now 450 amino acids, and users may experience longer waiting times. I apologize for any inconvenience this may cause.
+Due to limited funding, the PymolFold service will be downgraded to a T4 instance. As a result, the maximum sequence length supported is now **450** amino acids, and users may experience longer waiting times. I apologize for any inconvenience this may cause.
 
 **Issues and Errors**  
 If you encounter any errors or issues while using this project, please don't hesitate to open an issue here on GitHub. Your feedback helps us improve the project and make it more user-friendly for everyone.
