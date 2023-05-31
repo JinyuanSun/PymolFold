@@ -7,6 +7,9 @@ import json
 BASE_URL = "http://region-8.seetacloud.com:42711/"
 ABS_PATH = os.path.abspath("./")
 
+def set_base_url(url):
+    global BASE_URL
+    BASE_URL = url
 
 def ls_fix(selection, HOH="N"):
     sel = selection
@@ -262,10 +265,10 @@ def color_plddt(selection="all"):
     cmd.delete("test_b_scale")
 
     # set color based on plddt values
-    cmd.set("cartoon_color", "high_lddt_c", "high_lddt")
-    cmd.set("cartoon_color", "normal_lddt_c", "normal_lddt")
-    cmd.set("cartoon_color", "medium_lddt_c", "medium_lddt")
-    cmd.set("cartoon_color", "low_lddt_c", "low_lddt")
+    cmd.color("high_lddt_c", "high_lddt")
+    cmd.color("normal_lddt_c", "normal_lddt")
+    cmd.color("medium_lddt_c", "medium_lddt")
+    cmd.color("low_lddt_c", "low_lddt")
 
     # set background color
     cmd.bg_color("white")
