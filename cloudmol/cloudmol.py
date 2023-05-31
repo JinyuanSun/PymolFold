@@ -140,7 +140,7 @@ class PymolFold():
             fasta_string += f">des_{i},score={score},seqid={seqid}\n{seq}\n"
         if self.verbose:
             print(fasta_string)
-        return fasta_string
+        return d
 
 
     def query_singlemut(self, path_to_pdb: str, wild, resseq, mut):
