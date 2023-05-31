@@ -1,6 +1,6 @@
 ./app
 cloudmol/__pycache__
-./venv
+*venv*
 ./build
 
 *egg-info*
