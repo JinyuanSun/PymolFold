@@ -1,1 +1,4 @@
 ./app
+cloudmol/__pycache__
+./venv
+./build
