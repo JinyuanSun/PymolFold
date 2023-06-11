@@ -26,7 +26,7 @@ class PymolFold():
     def __init__(self, base_url: str = "http://region-8.seetacloud.com:42711/", abs_path: str = "PymolFold_workdir", verbose: bool = True):
         self.BASE_URL = base_url
         self.ABS_PATH = os.path.join(os.path.expanduser("~"), abs_path)
-        print(f"Results will be saved to {self.ABS_PATH}")
+        print(f"Results will be saved to {self.ABS_PATH} by default")
         if not os.path.exists(self.ABS_PATH):
             os.makedirs(self.ABS_PATH)
         self.verbose = verbose
@@ -36,7 +36,7 @@ class PymolFold():
 
     def set_path(self, path):
         self.ABS_PATH = path
-
+        print(f"Results will be saved to {self.ABS_PATH}")
 
     def query_pymolfold(self, sequence: str, num_recycle: int = 3, name: str = None):
         num_recycle = int(num_recycle)

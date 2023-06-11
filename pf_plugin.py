@@ -5,7 +5,15 @@ import os
 import json
 
 BASE_URL = "http://region-8.seetacloud.com:42711/"
+ESMFOLD_API = "https://api.esmatlas.com/foldSequence/v1/pdb/"
 ABS_PATH = os.path.abspath("./")
+
+def set_workdir(path):
+    global ABS_PATH
+    ABS_PATH = path
+    if ABS_PATH[0] == "~":
+        ABS_PATH = os.path.join(os.path.expanduser("~"), ABS_PATH[2:])
+    print(f"Results will be saved to {ABS_PATH}")
 
 def set_base_url(url):
     global BASE_URL
@@ -47,7 +55,7 @@ def cal_plddt(pdb_string: str):
     return sum(plddts) / len(plddts)
 
 
-def query_pymolfold(sequence: str, num_recycle: int = 3, name: str = None):
+def query_pymolfold(sequence: str, name: str = None, num_recycle: int = 3):
     num_recycle = int(num_recycle)
     data = {
         'sequence': sequence,
@@ -93,9 +101,7 @@ def query_esmfold(sequence: str, name: str = None):
         "Content-Type": "application/x-www-form-urlencoded",
     }
 
-    response = requests.post(
-        "https://api.esmatlas.com/foldSequence/v1/pdb/", headers=headers, data=sequence
-    )
+    response = requests.post(ESMFOLD_API, headers=headers, data=sequence)
     if not name:
         name = sequence[:3] + sequence[-3:]
     pdb_filename = os.path.join(ABS_PATH, name) + ".pdb"
@@ -142,7 +148,6 @@ def query_mpnn(path_to_pdb: str, fix_pos=None, chain=None, rm_aa=None, inverse=F
 
     response = requests.post(
         f"{BASE_URL}mpnn/", headers=headers, files=files, params=params)
-    # print(response.content.decode("utf-8"))
     res = response.content.decode("utf-8")
 
     d = json.loads(res)
@@ -214,7 +219,7 @@ def query_dms(path_to_pdb: str):
         ofile.write('mutation,002,010,020,030,ensemble\n')
         for name, s1, s2, s3, s4, s5 in zip(d['mutation'], d['002'], d['010'], d['020'], d['030'], d['ensemble']):
             ofile.write(f'{name},{s1},{s2},{s3},{s4},{s5}\n')
-    p = os.path.join(os.getcwd(), 'dms_results.csv')
+    p = os.path.join(ABS_PATH, 'dms_results.csv')
     print(f"Results save to '{p}'")
 
 
@@ -317,3 +322,4 @@ cmd.extend("cpd", prot_design)
 cmd.extend("singlemut", singlemut)
 cmd.extend("dms", dms)
 cmd.extend("ls_fix", ls_fix)
+cmd.extend("set_workdir", set_workdir)
