@@ -6,6 +6,8 @@ setup(
     packages=find_packages(),
     install_requires=[
         "requests",
+        "numpy",
+        "matplotlib"
     ],
     python_requires='>=3.6',  # Your Python compatibility
     author='Jinyuan Sun',
