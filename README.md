@@ -6,19 +6,20 @@ Visualization inspired by [pymol-color-alphafold](https://github.com/cbalbin-bio
 Thanks to ESMFold by Meta and the [API](https://esmatlas.com/about#api).  
 
 **Info**  
-Due to limited funding, the PymolFold service will be downgraded to a T4 instance. As a result, the maximum sequence length supported is now **450** amino acids, and users may experience longer waiting times. I apologize for any inconvenience this may cause.
+The PymolFold service is running on a A5000 instance (cost $100 a week), and the sequence length is limited to 1000aa.
 
 **Issues and Errors**  
 If you encounter any errors or issues while using this project, please don't hesitate to open an issue here on GitHub. Your feedback helps us improve the project and make it more user-friendly for everyone.
 
 **PymolFold Server: A Shared Resource**  
-Please note that the PymolFold server is a shared resource, and we request you to use it responsibly. Do not abuse the server, as it can affect the availability and performance of the service for other users.
+Please note that the PymolFold server is a shared resource, and I request you to use it responsibly. Do not abuse the server, as it can affect the availability and performance of the service for other users.
 
 ```git
+21Aug2023: As the ESMFold API is not stable, the job will be sent to PymolFold server if the job failed.
 11Apr2023: `pf_plugin.py` is the PyMOL plugin and the `pf_pkg.py` is a pymol-free python package.
 03Dec2022: Add `dms`, `singlemut`, and `webapps`. `pymolfold` allow sequence length up to 700aa.
 26Nov2022: ProteinMPNN is now integrated to design proteins.
-15Nov2022: We now provide an unofficial API to support user defined recycle number and allow sequence length up to 500aa!
+15Nov2022: I now provide an unofficial API to support user defined recycle number and allow sequence length up to 500aa!
 ```
 
 ## Install pymol-open-source

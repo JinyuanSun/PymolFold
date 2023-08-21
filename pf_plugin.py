@@ -65,7 +65,10 @@ def query_pymolfold(sequence: str, name: str = None, num_recycle: int = 3):
     response = requests.post(f"{BASE_URL}predict/",
                              json=data, timeout=1000)
     
-
+    if response.status_code == 500:  # HTTP status for Internal Server Error
+        print("PymolFold API resulted in an INTERNAL SERVER ERROR. Switching to ESMFold...")
+        query_esmfold(sequence, name)
+        return 0
     if not name:
         name = sequence[:3] + sequence[-3:]
     pdb_filename = os.path.join(ABS_PATH, name) + ".pdb"
@@ -83,6 +86,7 @@ def query_pymolfold(sequence: str, name: str = None, num_recycle: int = 3):
         cmd.load(pdb_filename)
     else:
         print(pdb_string)
+    return 0
 
 
 def query_esmfold(sequence: str, name: str = None):
@@ -102,6 +106,10 @@ def query_esmfold(sequence: str, name: str = None):
     }
 
     response = requests.post(ESMFOLD_API, headers=headers, data=sequence)
+    if response.status_code == 500:  # HTTP status for Internal Server Error
+        print("ESMFold API resulted in an INTERNAL SERVER ERROR. Switching to PyMolFold...")
+        query_pymolfold(sequence, name)
+        return 0
     if not name:
         name = sequence[:3] + sequence[-3:]
     pdb_filename = os.path.join(ABS_PATH, name) + ".pdb"
@@ -117,6 +125,7 @@ def query_esmfold(sequence: str, name: str = None):
         cmd.load(pdb_filename)
     else:
         print(pdb_string)
+    return 0
 
 
 def query_mpnn(path_to_pdb: str, fix_pos=None, chain=None, rm_aa=None, inverse=False, homooligomeric=False):
