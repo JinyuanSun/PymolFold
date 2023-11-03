@@ -6,6 +6,7 @@ import json
 
 BASE_URL = "http://region-8.seetacloud.com:42711/"
 ESMFOLD_API = "https://api.esmatlas.com/foldSequence/v1/pdb/"
+AM_HEGELAB_API = 'https://alphamissense.hegelab.org/structure/'
 ABS_PATH = os.path.abspath("./")
 
 def set_workdir(path):
@@ -86,6 +87,32 @@ def query_pymolfold(sequence: str, name: str = None, num_recycle: int = 3):
         cmd.load(pdb_filename)
     else:
         print(pdb_string)
+    return 0
+
+def query_am_hegelab(name):
+    try:
+        url = AM_HEGELAB_API + name
+        response = requests.get(url)
+        response.raise_for_status()  # This will raise a HTTPError for bad responses (4xx and 5xx)
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
+    else:
+        # Follow the redirect and get the actual data URL
+        data_url = response.url
+        
+        try:
+            data_response = requests.get(data_url)
+            data_response.raise_for_status()  # This will raise a HTTPError for bad responses (4xx and 5xx)
+        except requests.exceptions.RequestException as e:
+            print(f"An error occurred: {e}")
+        else:
+            data_content = data_response.content
+            
+            # Save the data to a file
+            output_filename = os.path.join(ABS_PATH, name) + ".pdb"
+            with open(output_filename, 'wb') as file:
+                file.write(data_content)
+    cmd.load(output_filename)
     return 0
 
 
@@ -332,3 +359,5 @@ cmd.extend("singlemut", singlemut)
 cmd.extend("dms", dms)
 cmd.extend("ls_fix", ls_fix)
 cmd.extend("set_workdir", set_workdir)
+cmd.extend("set_base_url", set_base_url)
+cmd.extend("fetch_am", query_am_hegelab)

@@ -4,6 +4,7 @@ Fold your protein in PyMOL!
 Inspired by [ColabFold](https://github.com/sokrypton/ColabFold) by [Sergey O](https://github.com/sokrypton).  
 Visualization inspired by [pymol-color-alphafold](https://github.com/cbalbin-bio/pymol-color-alphafold).  
 Thanks to ESMFold by Meta and the [API](https://esmatlas.com/about#api).  
+Fast access to AlphaMissense predicted Human proteins provided by [hegelab](https://alphamissense.hegelab.org/).
 
 **Info**  
 The PymolFold service is running on a A5000 instance (cost $100 a week), and the sequence length is limited to 1000aa.
@@ -15,6 +16,7 @@ If you encounter any errors or issues while using this project, please don't hes
 Please note that the PymolFold server is a shared resource, and I request you to use it responsibly. Do not abuse the server, as it can affect the availability and performance of the service for other users.
 
 ```git
+03Nov2023: Add `fetch_am` for AlphaMissense predicted Human proteins.
 20Sep2023: Add `fold_batch`, a command line tool.
 21Aug2023: As the ESMFold API is not stable, the job will be sent to PymolFold server if the job failed.
 11Apr2023: `pf_plugin.py` is the PyMOL plugin and the `pf_pkg.py` is a pymol-free python package.
@@ -31,7 +33,7 @@ conda install -c conda-forge pymol-open-source
 
 ## Usage
 
-### 1. Load extension into PyMOL. In the PyMOL command prompt
+### Load extension into PyMOL. In the PyMOL command prompt
 
 ```bash
 run https://raw.githubusercontent.com/JinyuanSun/PymolFold/main/pf_plugin.py
@@ -41,7 +43,21 @@ run https://raw.githubusercontent.com/JinyuanSun/PymolFold/py27/predict_structur
 run https://raw.staticdn.net/JinyuanSun/PymolFold/main/pf_plugin.py
 ```
 
-### 2. Fold your protein  
+Other scripts:
+
+```bash
+run https://alphamissense.hegelab.org/coloram.py
+```
+
+### New command `fetch_am` for AlphaMissense predicted Human proteins
+
+```bash
+fetch_am cftr_human
+coloram 
+```
+<img src="./img/am.png" width="400">
+
+### Fold your protein  
 
 [webapp avaiable at here](http://103.79.77.89:8501/), in case someone struggles with using PyMOL.  
 Also, check META's [web app](https://esmatlas.com/resources?action=fold)
@@ -69,7 +85,7 @@ ray 1280, 960, async=1
 <img src="./img/esmfold.png" width="400">
 <!-- ![Screenshot0](img/esmfold.png) -->
 
-### 3. Design Your Protein
+### Design Your Protein
 
 Thanks to [`ColabDeisgn`](https://github.com/sokrypton/ColabDesign) by [Sergey O](https://github.com/sokrypton).  
 
@@ -153,5 +169,19 @@ ProteinMPNN:
   publisher={American Association for the Advancement of Science}
 }
 ```
+Access to AlphaMissense:
+```bibtex
+@article {Tordai2023.10.30.564807,
+	author = {Hedvig Tordai and Odalys Torres and Mate Csepi and Rita Padanyi and Gergely L Lukacs and Tamas Hegedus},
+	title = {Lightway access to AlphaMissense data that demonstrates a balanced performance of this missense mutation predictor},
+	elocation-id = {2023.10.30.564807},
+	year = {2023},
+	doi = {10.1101/2023.10.30.564807},
+	publisher = {Cold Spring Harbor Laboratory},
+	URL = {https://www.biorxiv.org/content/early/2023/11/02/2023.10.30.564807},
+	eprint = {https://www.biorxiv.org/content/early/2023/11/02/2023.10.30.564807.full.pdf},
+	journal = {bioRxiv}
+}
+``````
 
 PyMOL is a trademark of Schrodinger, LLC.
