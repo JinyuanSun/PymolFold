@@ -85,7 +85,7 @@ class PymolFold():
         }
 
         response = requests.post(
-            "https://api.esmatlas.com/foldSequence/v1/pdb/", headers=headers, data=sequence
+            "https://api.esmatlas.com/foldSequence/v1/pdb/", headers=headers, data=sequence, verify=False
         )
         if not name:
             name = sequence[:3] + sequence[-3:]

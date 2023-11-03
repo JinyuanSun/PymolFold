@@ -105,7 +105,7 @@ def query_esmfold(sequence: str, name: str = None):
         "Content-Type": "application/x-www-form-urlencoded",
     }
 
-    response = requests.post(ESMFOLD_API, headers=headers, data=sequence)
+    response = requests.post(ESMFOLD_API, headers=headers, data=sequence, verify=False)
     if response.status_code == 500:  # HTTP status for Internal Server Error
         print("ESMFold API resulted in an INTERNAL SERVER ERROR. Switching to PyMolFold...")
         query_pymolfold(sequence, name)
