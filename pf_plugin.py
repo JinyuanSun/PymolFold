@@ -350,6 +350,46 @@ def dms(selection, name='./target_bb.pdb'):
     query_dms(name)
 
 
+def predict_pocket(selection="all", name="input.pdb"):
+    """
+    Predicts the pocket residues in a protein structure using the PocketAPI.
+
+    Args:
+        selection (str, optional): The selection of atoms to consider for pocket prediction. Defaults to "all".
+        name (str, optional): The name of the PDB file to save. Defaults to "input.pdb".
+    """
+    name = os.path.join(ABS_PATH, name)
+    cmd.save(name, selection)
+    headers = {
+        'accept': 'application/json',
+    }
+
+    files = {
+        'file': open(name, 'rb'),
+    }
+    
+    response = requests.post('https://pocketapi.cloudmol.org/predict', headers=headers, files=files)
+    pocket_dict = json.loads(response.text)
+    cmd.set_color("high_c", [0,0.325490196078431,0.843137254901961 ])
+    cmd.set_color("normal_c", [0.341176470588235,0.792156862745098,0.976470588235294])
+    cmd.set_color("medium_c", [1,0.858823529411765,0.070588235294118])
+    cmd.set_color("low_c", [1,0.494117647058824,0.270588235294118])
+    cmd.color("grey", f"{selection} and polymer.protein")
+    if len(pocket_dict['Likely pocket residues']) > 0:
+        cmd.color("medium_c", f"({selection}) and resi {pocket_dict['Likely pocket residues']}")
+        cmd.show("sticks", f"({selection}) and resi {pocket_dict['Likely pocket residues']}")
+    if len(pocket_dict['Confident pocket residues']) > 0:
+        cmd.color("normal_c", f"({selection}) and resi {pocket_dict['Confident pocket residues']}")
+    if len(pocket_dict['Highly confident pocket residues']) > 0:
+        cmd.color("high_c", f"({selection}) and resi {pocket_dict['Highly confident pocket residues']}")
+    for k, v in pocket_dict.items():
+        if len(v) > 0:
+            print(k)
+            print(v)
+
+cmd.extend("predict_pocket", predict_pocket)
+cmd.auto_arg[0]["predict_pocket"] = [cmd.object_sc, "object", ""]
+
 cmd.extend("color_plddt", color_plddt)
 cmd.auto_arg[0]["color_plddt"] = [cmd.object_sc, "object", ""]
 cmd.extend("esmfold", query_esmfold)

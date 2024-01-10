@@ -16,6 +16,7 @@ If you encounter any errors or issues while using this project, please don't hes
 Please note that the PymolFold server is a shared resource, and I request you to use it responsibly. Do not abuse the server, as it can affect the availability and performance of the service for other users.
 
 ```git
+10Jan2024: Add `predict_pocket` to predict ligand binding pocket of protein.
 03Nov2023: Add `fetch_am` for AlphaMissense predicted Human proteins.
 20Sep2023: Add `fold_batch`, a command line tool.
 21Aug2023: As the ESMFold API is not stable, the job will be sent to PymolFold server if the job failed.
