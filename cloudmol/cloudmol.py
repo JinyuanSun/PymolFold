@@ -38,7 +38,7 @@ class PymolFold():
         self.ABS_PATH = path
         print(f"Results will be saved to {self.ABS_PATH}")
 
-    def query_pymolfold(self, sequence: str, num_recycle: int = 3, name: str = None):
+    def query_pymolfold(self, sequence: str, num_recycle: int = 3, name: str = None, return_pdb_string: bool = False):
         num_recycle = int(num_recycle)
         data = {
             'sequence': sequence,
@@ -55,20 +55,23 @@ class PymolFold():
         pdb_string = pdb_string.replace('\"', "")
         if pdb_string.startswith("PARENT"):
             pdb_string = pdb_string.replace("PARENT N/A\n", "")
-            with open(pdb_filename, "w") as out:
-                out.write(pdb_string.replace('\\n', '\n'))
-            if self.verbose:
-                print(f"Results saved to {pdb_filename}")
-                plddt = cal_plddt(pdb_string)
-                print("="*20)
-                print("    pLDDT: "+"{:.2f}".format(plddt))
-                print("="*20)
+            if return_pdb_string:
+                return pdb_string
+            else:
+                with open(pdb_filename, "w") as out:
+                    out.write(pdb_string.replace('\\n', '\n'))
+                if self.verbose:
+                    print(f"Results saved to {pdb_filename}")
+                    plddt = cal_plddt(pdb_string)
+                    print("="*20)
+                    print("    pLDDT: "+"{:.2f}".format(plddt))
+                    print("="*20)
 
-        else:
-            print(pdb_string)
+            else:
+                print(pdb_string)
 
 
-    def query_esmfold(self, sequence: str, name: str = None):
+    def query_esmfold(self, sequence: str, name: str = None, return_pdb_string: bool = False):
         """Predict protein structure with ESMFold
 
         Args:
@@ -92,16 +95,19 @@ class PymolFold():
         pdb_filename = os.path.join(self.ABS_PATH, name) + ".pdb"
         pdb_string = response.content.decode("utf-8")
         if pdb_string.startswith("HEADER"):
-            with open(pdb_filename, "w") as out:
-                out.write(pdb_string)
-            if self.verbose:
-                print(f"Results saved to {pdb_filename}")
-                plddt = cal_plddt(pdb_string)
-                print("="*20)
-                print("    pLDDT: "+"{:.2f}".format(plddt))
-                print("="*20)
-        else:
-            print(pdb_string)
+            if return_pdb_string:
+                return pdb_string
+            else:
+                with open(pdb_filename, "w") as out:
+                    out.write(pdb_string)
+                if self.verbose:
+                    print(f"Results saved to {pdb_filename}")
+                    plddt = cal_plddt(pdb_string)
+                    print("="*20)
+                    print("    pLDDT: "+"{:.2f}".format(plddt))
+                    print("="*20)
+            else:
+                print(pdb_string)
 
 
     def query_mpnn(self, path_to_pdb: str, fix_pos=None, chain=None, rm_aa=None, inverse=False, homooligomeric=False):
