@@ -67,8 +67,8 @@ class PymolFold():
                     print("    pLDDT: "+"{:.2f}".format(plddt))
                     print("="*20)
 
-            else:
-                print(pdb_string)
+        else:
+            print(pdb_string)
 
 
     def query_esmfold(self, sequence: str, name: str = None, return_pdb_string: bool = False):
@@ -106,8 +106,8 @@ class PymolFold():
                     print("="*20)
                     print("    pLDDT: "+"{:.2f}".format(plddt))
                     print("="*20)
-            else:
-                print(pdb_string)
+        else:
+            print(pdb_string)
 
 
     def query_mpnn(self, path_to_pdb: str, fix_pos=None, chain=None, rm_aa=None, inverse=False, homooligomeric=False):
