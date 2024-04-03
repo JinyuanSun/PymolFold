@@ -23,7 +23,7 @@ def cal_plddt(pdb_string: str):
     return sum(plddts) / len(plddts)
 
 class PymolFold():
-    def __init__(self, base_url: str = "http://region-8.seetacloud.com:42711/", abs_path: str = "PymolFold_workdir", verbose: bool = True):
+    def __init__(self, base_url: str = "https://api.cloudmol.org/", abs_path: str = "PymolFold_workdir", verbose: bool = True):
         self.BASE_URL = base_url
         self.ABS_PATH = os.path.join(os.path.expanduser("~"), abs_path)
         print(f"Results will be saved to {self.ABS_PATH} by default")
@@ -38,21 +38,18 @@ class PymolFold():
         self.ABS_PATH = path
         print(f"Results will be saved to {self.ABS_PATH}")
 
-    def query_pymolfold(self, sequence: str, num_recycle: int = 3, name: str = None, return_pdb_string: bool = False):
-        num_recycle = int(num_recycle)
-        data = {
-            'sequence': sequence,
-            'num_recycles': num_recycle,
+    def query_pymolfold(self, sequence: str, name: str = None, return_pdb_string: bool = False, num_recycle: int = 0):
+        if num_recycle != 0:
+            print("The `num_recycle` was deprecated.")
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
         }
-
-        response = requests.post(f"{self.BASE_URL}predict/",
-                                json=data, timeout=1000)
+        response = requests.post(f"{self.BASE_URL}protein/esmfold/", headers=headers, data=sequence)
         
         if not name:
             name = sequence[:3] + sequence[-3:]
         pdb_filename = os.path.join(self.ABS_PATH, name) + ".pdb"
-        pdb_string = response.json()['output']
-        pdb_string = pdb_string.replace('\"', "")
+        pdb_string = response.content.decode("utf-8")
         if pdb_string.startswith("PARENT"):
             pdb_string = pdb_string.replace("PARENT N/A\n", "")
             if return_pdb_string:

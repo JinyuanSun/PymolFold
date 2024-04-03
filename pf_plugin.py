@@ -4,7 +4,8 @@ import re
 import os
 import json
 
-BASE_URL = "http://region-8.seetacloud.com:42711/"
+# BASE_URL = "http://region-8.seetacloud.com:42711/"
+BASE_URL = "https://api.cloudmol.org/"
 ESMFOLD_API = "https://api.esmatlas.com/foldSequence/v1/pdb/"
 AM_HEGELAB_API = 'https://alphamissense.hegelab.org/structure/'
 ABS_PATH = os.path.abspath("./")
@@ -56,15 +57,13 @@ def cal_plddt(pdb_string: str):
     return sum(plddts) / len(plddts)
 
 
-def query_pymolfold(sequence: str, name: str = None, num_recycle: int = 3):
-    num_recycle = int(num_recycle)
-    data = {
-        'sequence': sequence,
-        'num_recycles': num_recycle,
+def query_pymolfold(sequence: str, name: str = None, num_recycle: int = 0):
+    if num_recycle != 0:
+        print("The `num_recycle` was deprecated.")
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
     }
-
-    response = requests.post(f"{BASE_URL}predict/",
-                             json=data, timeout=1000)
+    response = requests.post(f"{BASE_URL}protein/esmfold/", headers=headers, data=sequence)
     
     if response.status_code == 500:  # HTTP status for Internal Server Error
         print("PymolFold API resulted in an INTERNAL SERVER ERROR. Switching to ESMFold...")
@@ -72,9 +71,8 @@ def query_pymolfold(sequence: str, name: str = None, num_recycle: int = 3):
         return 0
     if not name:
         name = sequence[:3] + sequence[-3:]
+    pdb_string = response.content.decode("utf-8")
     pdb_filename = os.path.join(ABS_PATH, name) + ".pdb"
-    pdb_string = response.json()['output']
-    pdb_string = pdb_string.replace('\"', "")
     if pdb_string.startswith("PARENT"):
         pdb_string = pdb_string.replace("PARENT N/A\n", "")
         with open(pdb_filename, "w") as out:
@@ -365,11 +363,12 @@ def predict_pocket(selection="all", name="input.pdb"):
     }
 
     files = {
-        'file': open(name, 'rb'),
+        'uploaded_file': open(name, 'rb'),
     }
     
-    response = requests.post('https://pocketapi.cloudmol.org/predict', headers=headers, files=files)
+    response = requests.post('https://api.cloudmol.org/protein/pocket_mpnn/', headers=headers, files=files)
     pocket_dict = json.loads(response.text)
+    print(pocket_dict)
     cmd.set_color("high_c", [0,0.325490196078431,0.843137254901961 ])
     cmd.set_color("normal_c", [0.341176470588235,0.792156862745098,0.976470588235294])
     cmd.set_color("medium_c", [1,0.858823529411765,0.070588235294118])

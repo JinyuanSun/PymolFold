@@ -5,7 +5,7 @@
 ### Installation
 
 ```bash
-pip install git+https://github.com/JinyuanSun/PymolFold.git
+pip install -U git+https://github.com/JinyuanSun/PymolFold.git
 ```
 
 ### Usage
