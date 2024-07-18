@@ -16,6 +16,7 @@ If you encounter any errors or issues while using this project, please don't hes
 Please note that the PymolFold server is a shared resource, and I request you to use it responsibly. Do not abuse the server, as it can affect the availability and performance of the service for other users.
 
 ```git
+18Jul2024: Add `fetch_af` to fetch AlphaFold predicted proteins in AlphaFold Database using UniProt ID. Deprecate `dms`, `singlemut`, `cpd`, and `webapp`.
 10Jan2024: Add `predict_pocket` to predict ligand binding pocket of protein.
 03Nov2023: Add `fetch_am` for AlphaMissense predicted Human proteins.
 20Sep2023: Add `fold_batch`, a command line tool.
@@ -50,17 +51,8 @@ Other scripts:
 run https://alphamissense.hegelab.org/coloram.py
 ```
 
-### New command `fetch_am` for AlphaMissense predicted Human proteins
-
-```bash
-fetch_am cftr_human
-coloram 
-```
-<img src="./img/am.png" width="400">
-
 ### Fold your protein  
 
-[webapp avaiable at here](http://103.79.77.89:8501/), in case someone struggles with using PyMOL.  
 Also, check META's [web app](https://esmatlas.com/resources?action=fold)
 
 The `color_plddt` command also returns pymol `selection` object of different confidence levels. The color scheme is now compatible with plddt in range (0, 1) and (0, 100) only if they are consistent in your selection.
@@ -86,61 +78,18 @@ ray 1280, 960, async=1
 <img src="./img/esmfold.png" width="400">
 <!-- ![Screenshot0](img/esmfold.png) -->
 
-### Design Your Protein
-
-Thanks to [`ColabDeisgn`](https://github.com/sokrypton/ColabDesign) by [Sergey O](https://github.com/sokrypton).  
-
-#### cpd for sequence generation [`Webapp`](http://103.79.77.89:8501/Protein_Design)
-
-Use `cpd` to design seqeunces will fold into the target structure:
+### Use `fetch_am` for AlphaMissense predicted Human proteins
 
 ```bash
-# commands
-fetch 1pga.A
-cpd 1pga.A
-# output looks like:
-# >des_0,score=0.72317,seqid=0.6607
-# PTYKLIINGKKIKGEISVEAPDAKTAEKIFKNYAKENGVNGKWTYDESTKTFTIEE
-# >des_1,score=0.73929,seqid=0.6250
-# PTYTLVVNGKKIKGTRSVEAPNAAVAEKIFKQWAKENGVNGTWTYDASTKTFTVTE
-# >des_2,score=0.72401,seqid=0.6429
-# PTYTLKINGKKIKGEISVEAPNAEEAEKIFKQYAKDHGVNGKWTYDASTKTFTVTE
+fetch_am cftr_human
+coloram 
 ```
+<img src="./img/am.png" width="400">
 
-Using `esmfold` to examin the `des_0`:
+### Use `fetch_af` to fetch AlphaFold predicted proteins in AlphaFold Database using UniProt ID
 
-```python
-# commands
-esmfold PTYKLIINGKKIKGEISVEAPDAKTAEKIFKNYAKENGVNGKWTYDESTKTFTIEE, 1pga_des0
-super 1pga_des0, 1pga.A
-color_plddt 1pga_des0
-```
-
-<img src="./img/des_demo.png" width="400">
-<!-- ![Screenshot1](img/des_demo.png) -->
-
-#### `singlemut` for scoring a signle mutation [`Webapp`](http://103.79.77.89:8501/Single_Point_Mutation)
-
-```python
-# commands
-fetch 1pga.A
-singlemut 1pga.A, A, 26, F
-# output maybe (not deterministic):
-# ================================
-# mutation: A_26_F, score: -0.0877
-# ================================
-```
-
-#### `dms` for *in silico* deep mutational scan [`Webapp`](http://103.79.77.89:8501/Deep_Mutation_Scan)
-
-```python
-# commands
-fetch 1pga.A
-select resi 1-10
-dms sele
-# this might took ~1 min, be pacient ; )
-# output:
-# Results save to '/pat/to/working/dir/dms_results.csv'
+```bash
+fetch_af P26196
 ```
 
 ## Reference

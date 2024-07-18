@@ -386,6 +386,11 @@ def predict_pocket(selection="all", name="input.pdb"):
             print(k)
             print(v)
 
+def fetch_af(uniprot_id):
+    url = f"https://alphafold.ebi.ac.uk/files/AF-{uniprot_id}-F1-model_v4.pdb"
+    cmd.do(f"load {url}")
+    cmd.do(f"color_plddt AF-{uniprot_id}-F1-model_v4")
+
 cmd.extend("predict_pocket", predict_pocket)
 cmd.auto_arg[0]["predict_pocket"] = [cmd.object_sc, "object", ""]
 
@@ -400,3 +405,4 @@ cmd.extend("ls_fix", ls_fix)
 cmd.extend("set_workdir", set_workdir)
 cmd.extend("set_base_url", set_base_url)
 cmd.extend("fetch_am", query_am_hegelab)
+cmd.extend("fetch_af", fetch_af)
