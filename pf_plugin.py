@@ -4,11 +4,17 @@ import re
 import os
 import json
 
-# BASE_URL = "http://region-8.seetacloud.com:42711/"
 BASE_URL = "https://api.cloudmol.org/"
 ESMFOLD_API = "https://api.esmatlas.com/foldSequence/v1/pdb/"
 AM_HEGELAB_API = 'https://alphamissense.hegelab.org/structure/'
 ABS_PATH = os.path.abspath("./")
+SCRIPT_PATH = os.path.dirname(__file__)
+
+def set_esm3_api_token(token):
+    os.environ["ESM_API_TOKEN"] = token
+    
+    with open(os.path.join(SCRIPT_PATH, ".esm3_token"), "w") as f:
+        f.write(token)
 
 def set_workdir(path):
     global ABS_PATH
@@ -34,6 +40,63 @@ def ls_fix(selection, HOH="N"):
             list_sele.append(m1.atom[x].resi)
     print(",".join(list_sele))
     return ",".join(list_sele)
+
+def query_esm3(sequence:str, name:str=None, temperature:float=0.7, num_steps:int=8, model_name:str="esm3-medium-2024-08"):
+    """
+    Protein folding using ESM models
+    """
+    try:
+        from esm.sdk import client
+        from esm.sdk.api import ESMProtein, GenerationConfig
+        token = os.getenv("ESM_API_TOKEN", None)
+    except ModuleNotFoundError as e:
+        raise Exception(f"esm module not found: {str(e)}")
+    
+    if not token:
+        if os.path.exists(f"{SCRIPT_PATH}/.esm3_token"):
+            with open(f"{SCRIPT_PATH}/.esm3_token", "r") as f:
+                token = f.read().strip()
+        else:
+            raise Exception("ESM_API_TOKEN is not set, go to https://forge.evolutionaryscale.ai and get your token")
+
+    assert token, "ESM_API_TOKEN is not set, go to https://forge.evolutionaryscale.ai and get your token"
+
+    try:
+        model = client(model=model_name, url="https://forge.evolutionaryscale.ai", token=token)
+    except Exception as e:
+        raise Exception(f"Error getting ESM model with token: {str(e)}")
+
+    ## Generate the protein structure
+    structure_prediction_config = GenerationConfig(
+        track="structure",
+        num_steps=num_steps,
+        temperature=temperature,
+    )
+
+    structure_prediction_prompt = ESMProtein(sequence=sequence)
+
+    structure_prediction = model.generate(
+        structure_prediction_prompt,
+        structure_prediction_config
+    )
+
+    structure_prediction_chain = structure_prediction.to_protein_chain()
+
+    pdb_string = structure_prediction_chain.to_pdb_string()
+
+    plddt = cal_plddt(pdb_string)
+    print("="*40)
+    print("    pLDDT: "+"{:.2f}".format(plddt))
+    print("="*40)
+
+    if not name:
+        name = sequence[:3] + sequence[-3:]
+    pdb_filename = os.path.join(ABS_PATH, name) + ".pdb"
+    with open(pdb_filename, "w+") as out:
+        out.write(pdb_string)
+    print(f"Results saved to {pdb_filename}")
+    cmd.load(pdb_filename)
+    return 0
 
 
 def cal_plddt(pdb_string: str):
@@ -406,3 +469,4 @@ cmd.extend("set_workdir", set_workdir)
 cmd.extend("set_base_url", set_base_url)
 cmd.extend("fetch_am", query_am_hegelab)
 cmd.extend("fetch_af", fetch_af)
+cmd.extend("esm3", query_esm3)
