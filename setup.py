@@ -1,25 +1,57 @@
+# -*- coding: utf-8 -*-
+
 from setuptools import setup, find_packages
 
 setup(
-    name='cloudmol',
-    version='0.1.3',
+    name='pymolfold',
+    version='0.2.0',
     packages=find_packages(),
     install_requires=[
-        "requests",
-        "numpy",
-        "matplotlib",
-        "biopython"
+        "requests>=2.25.0",
+        "numpy>=1.19.0",
+        "httpx>=0.24.0",
+        "fastapi>=0.68.0",
+        "matplotlib>=3.3.0",  # 用于绘图功能
+        "biopython>=1.79",   # 生物信息学工具  
     ],
-    python_requires='>=3.6',  
-    author='Jinyuan Sun',
-    author_email='jinyuansun98@gmail.com',
-    description='Easily protein folding and design with cloudmol',
+    extras_require={
+        'esm': [
+            'torch>=2.0.0',
+            'esm>=1.0.0'
+        ],
+    },
+    python_requires='>=3.8',  
+    author='Jinyuan Sun, Yifan Deng',
+    author_email='jinyuansun98@gmail.com, dengyifan15@gmail.com',
+    description='Protein structure prediction in PyMOL',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     url='https://github.com/JinyuanSun/PymolFold',
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Topic :: Scientific/Engineering :: Bio-Informatics',
+    ],
     entry_points={
         'console_scripts': [
-            'fold_batch=cloudmol.fold_batch:main',
+            'fold_batch=pymolfold.fold_batch:main',
+        ],
+        'pymol.plugins': [
+            'pymolfold=pymolfold.plugin:__init_plugin__'
+        ]
+    },
+    # 包含非Python文件
+    package_data={
+        'pymolfold': [
+            'README.md',
+            'LICENSE',
+            '.esm3_token',
         ],
     },
 )
