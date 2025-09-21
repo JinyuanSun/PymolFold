@@ -1,0 +1,14 @@
+include LICENSE
+include README.md
+include pyproject.toml
+include pymolfold/gui/ccd_keys.json
+
+recursive-include pymolfold *.py
+recursive-include pymolfold/predictors *.py
+recursive-include pymolfold/gui *.py
+recursive-include pymolfold *.md
+
+global-exclude *.pyc
+global-exclude __pycache__
+global-exclude *.pyo
+global-exclude .git

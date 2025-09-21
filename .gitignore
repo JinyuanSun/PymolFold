@@ -1,7 +1,7 @@
-./app
-cloudmol/__pycache__
+__pycache__
 *venv*
 ./build
+tests
 
 *egg-info*
 
@@ -10,3 +10,8 @@ cloudmol/__pycache__
 *build*
 
 test.ipynb
+.vscode
+.pytest_cache
+.coverage
+*.pkl
+*.ipynb
