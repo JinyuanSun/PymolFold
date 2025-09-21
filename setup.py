@@ -4,29 +4,29 @@ from setuptools import setup, find_packages
 
 setup(
     name='pymolfold',
-    version='0.2.0',
+    version='0.2.1',
     packages=find_packages(),
     install_requires=[
         "requests>=2.25.0",
         "numpy>=1.19.0",
         "httpx>=0.24.0",
         "fastapi>=0.68.0",
-        "matplotlib>=3.3.0",  # 用于绘图功能
-        "biopython>=1.79",   # 生物信息学工具  
+        "matplotlib>=3.3.0", 
+        "biopython>=1.79", 
+        "streamlit==1.49.1",
+        "flask==3.1.0",
+        "rdkit==2025.3.6",
+        "uvicorn==0.22.0",
+        "esm==3.2.1",
+        "torch>=2.0.0",
     ],
-    extras_require={
-        'esm': [
-            'torch>=2.0.0',
-            'esm>=1.0.0'
-        ],
-    },
     python_requires='>=3.8',  
     author='Jinyuan Sun, Yifan Deng',
     author_email='jinyuansun98@gmail.com, dengyifan15@gmail.com',
     description='Protein structure prediction in PyMOL',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
-    url='https://github.com/JinyuanSun/PymolFold',
+    url='https://github.com/ivandon15/PymolFold',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',

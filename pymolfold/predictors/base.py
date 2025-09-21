@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from typing import Dict, Any, Optional, List
 from pathlib import Path
 
@@ -30,7 +31,7 @@ class StructurePredictor(ABC):
         """
         pass
         
-    def save_structures(self, result: Dict[str, Any]) -> List[Path]:
+    def save_structures(self, result: Dict[str, Any], name=None) -> List[Path]:
         """Save predicted structures to files
         
         Args:
@@ -40,29 +41,33 @@ class StructurePredictor(ABC):
             List of paths to saved structure files
         """
         saved_files = []
-        for struct in result.get('structures', []):
+        for i, struct in enumerate(result.get('structures', [])):
+            initial_name = deepcopy(name)
             if 'structure' not in struct or 'source' not in struct:
                 continue
-                
-            # Clean filename and ensure .cif extension
-            name = self._clean_filename(struct['source'])
+            if initial_name is None:
+                # Clean filename and ensure .cif extension
+                initial_name = self._clean_filename(struct['source'])
+            else:
+                initial_name += f"_{i+1}"
             suffix = ".cif" if struct['structure'].startswith("data_") else ".pdb"
-            if not name.lower().endswith(suffix):
-                name += suffix
+            if not initial_name.lower().endswith(suffix):
+                initial_name += suffix
                 
             # Avoid name collisions
-            path = self.workdir / name
+            path = self.workdir / initial_name
             counter = 1
             while path.exists():
-                stem = Path(name).stem
+                stem = Path(initial_name).stem
                 if stem.endswith(f'_{counter-1}'):
                     stem = stem.rsplit('_', 1)[0]
-                path = self.workdir / f"{stem}_{counter}suffix"
+                path = self.workdir / f"{stem}_{counter}{suffix}"
                 counter += 1
                 
             # Save structure
             path.write_text(struct['structure'])
             saved_files.append(path)
+            print(f"Saved in {path}")
             
         return saved_files
         

@@ -1,87 +1,126 @@
 # PymolFold
-
 Inspired by [ColabFold](https://github.com/sokrypton/ColabFold) by [Sergey O](https://github.com/sokrypton).  
 Visualization inspired by [pymol-color-alphafold](https://github.com/cbalbin-bio/pymol-color-alphafold).  
 Thanks to ESMFold by Meta and the [API](https://esmatlas.com/about#api).  
 Fast access to AlphaMissense predicted Human proteins provided by [hegelab](https://alphamissense.hegelab.org/).
 
+## Quick Start Guide
 
-## 安装
-### 1. 安装 PyMOL
+### 1. Install PyMOL
+
+This project enables structure and domain prediction directly within the PyMOL visualization software.  
+
+SO, download and install PyMOL from the [official website](https://pymol.org/).
+
+---
+
+### 2. Obtain API Tokens
+
+PymolFold utilizes APIs from ESM3 and NVIDIA Boltz2.  
+You need to obtain API tokens from both:
+
+- [ESM3 API](https://forge.evolutionaryscale.ai)
+- [NVIDIA Boltz2](https://build.nvidia.com/mit/boltz2?hosted_api=true&integrate_nim=true&modal=integrate-nim)
+
+After obtaining your tokens, set them as environment variables:  
+- `ESM_API_TOKEN`  
+- `NVCF_API_KEY`  
+Both must be **uppercase** and contain underscores.
+
+**How to set environment variables:**
+
+**Windows:**
+1. Press `Win + S` and search for "Environment Variables".
+2. Select "Edit the system environment variables".
+3. In the System Properties window, go to "Advanced" → "Environment Variables".
+4. Add or edit variables in "System variables" or "User variables".
+   - Example:
+     - Variable name: `MY_ENV`
+     - Variable value: `hello`
+5. (Windows User pay attention): In case of some strange error occurs, you also need set an extra variables `PYTHONUTF8` and value set to `1`.
+6. Save and close.
+
+**Mac:**
+1. Press `Command + Space`, type "terminal", and open Terminal.
+2. Edit your shell config:
+   ```bash
+   vim ~/.zshrc
+   ```
+3. Add your variable (example, replace with your actual token):
+   ```bash
+   export MY_ENV=hello
+   ```
+4. Save and exit Vim. (Ask ChatGPT if you duno how to do this)
+5. Activate the environment variable:
+   ```bash
+   source ~/.zshrc
+   ```
+
+---
+
+### 3. Run the Plugin
+
+Once PyMOL and your API tokens are ready, download the `run_plugin.py` file from this project.  
+Open PyMOL and enter the full path to `run_plugin.py`:
 
 ```bash
-conda install -c conda-forge pymol-open-source
-```
-如果你是windows用户，那么直接去PyMol官网下载最新版本的软件
-
-### 2. 安装 PymolFold
-
-从源代码安装：
-```bash
-# 克隆仓库
-git clone https://github.com/ivandon15/PymolFold.git
-cd PymolFold
-# 找到pymol安装路径，比如我是在"D:\Develop\PyMol2"
-# 然后利用"D:\Develop\PyMol2\python.exe" -m pip install .[esm] 进行安装
+run path_to/run_plugin.py
 ```
 
-### 3. 验证安装
-安装完毕之后打开PyMOL
+If you see the following, installation was successful:  
+<img src="./img/install.png" width="300">
 
-在 PyMOL 中：
-```python
-import pymolfold
-print(pymolfold.__version__)  # 应显示版本号 0.2.0
-```
-然后在PyMOL命令行中
-run path_to_PymolFold/run_plugin.py
-会显示
-PymolFold v0.2.0 loaded successfully!
-## 使用说明
+---
 
-PymolFold 提供多种结构预测方法，都可以在 PyMOL 命令行中直接使用。预测结果会自动保存并加载到 PyMOL 中显示。
+### 4. How to Use
 
-### 1. Boltz2 结构预测
+PymolFold provides several features: `esm3`, `boltz2`, and `color_plddt`.
 
-注意：使用前需要设置环境变量：
-在这里注册：https://build.nvidia.com/mit/boltz2?integrate_nim=true&hosted_api=true&modal=integrate-nim
-```bash
-export NVCF_API_KEY="your_api_key_here"
-```
+#### 1. Predict Monomer Protein Structure
 
-```python
-boltz2 sequence [, name] [, **kwargs]
-
-# 参数示例:
-boltz2 MKTVRQERLKSIVRILERSKEPVSGAQLAEELSVSRQVIVQDIAYLRSLGYNIVATPRGYVLAGG, test_protein
-```
-
-
-### 2. ESM-3 结构预测
-
-需要从 [forge.evolutionaryscale.ai](https://forge.evolutionaryscale.ai) 获取 API token.
+Use the convenient `esm3` command:
 
 ```python
 esm3 sequence [, name]
-# 示例:
+# Example:
 esm3 MKTVRQERLKSIVRILERSKEPVSGAQLAEELSVSRQVIVQDIAYLRSLGYNIVATPRGYVLAGG
 ```
+<img src="./img/esmfold.png" width="400">
 
-### 结构显示和分析
-预测的结构会在
-PyMOL>from pathlib import Path
-PyMOL>print(Path.cwd())
-这个还没改，boltz出来cif，esm3出来pdb
-boltz的小分子还没设置，然后看看怎么把浏览器放进来
+---
 
-推荐的可视化设置：
+#### 2. Predict Complexes, DNA, RNA, or Ligand Structures
+
+For more complex predictions, use the `boltz2` command.  
+Due to the number of required inputs, a web interface is provided (inspired by [NVIDIA Boltz2](https://build.nvidia.com/mit/boltz2)).  
+Currently, conditional prediction is not supported, but may be added in the future.
+
+To launch the web interface, enter the following in the PyMOL command line:
+
 ```python
-color_plddt  # 根据 pLDDT 得分着色
-orient       # 调整视角
-ray          # 高质量渲染
+boltz2
 ```
 
-<img src="./img/esmfold.png" width="400">
+You can run the provided example:  
+<img src="./img/boltzexample.png" width="500">
+
+When using CCD code, you can check all the existed CCDs under `pymolfold/gui/ccd_keys.json`
+
+After clicking **Run** on the web page, wait about 6 seconds (depending on protein size), and the structure will appear in PyMOL!
+
+---
+
+#### 3. View pLDDT Scores
+
+After prediction, enter the following to view pLDDT scores for the predicted structure:
+
+```python
+color_plddt
+```
+
+## Others
+**Version**
+Current version is 0.2.1, and if you are interesting in the source code, you can install pymolfold directly by `pip install pymolfold==0.2.1`.
 
 **Info**  
 The PymolFold service is running on a A5000 instance (cost $100 a week), and the sequence length is limited to 1000aa.
@@ -93,6 +132,7 @@ If you encounter any errors or issues while using this project, please don't hes
 Please note that the PymolFold server is a shared resource, and I request you to use it responsibly. Do not abuse the server, as it can affect the availability and performance of the service for other users.
 
 ```git
+21Sept2025: Refactor PyMOLFold, deleting unrelated module, adding boltz2 using NVIDIA API
 17Jan2025: Add `esm3` to use ESM-3 for folding.
 21Aug2023: As the ESMFold API is not stable, the job will be sent to PymolFold server if the job failed.
 11Apr2023: `pf_plugin.py` is the PyMOL plugin and the `pf_pkg.py` is a pymol-free python package.

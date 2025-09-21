@@ -16,3 +16,5 @@ test.ipynb
 .github
 .pytest_cache
 .coverage
+*.pkl
+*.ipynb

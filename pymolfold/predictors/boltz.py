@@ -27,11 +27,92 @@ class Boltz2Predictor(StructurePredictor):
                 "Please set NVCF_API_KEY（export NVCF_API_KEY=...）before using Boltz2."
             )
             
-    def predict(self, sequence: str, **kwargs) -> Dict[str, Any]:
+    def convert_to_boltz_json(self, gui_data):
+        """
+        Converts the final_data list from the Streamlit app into the Boltz JSON format.
+
+        Args:
+            final_data: A dictionary of entities and settings.
+
+        Returns:
+            dict: A dictionary formatted for Boltz API input.
+        """
+        import re
+        boltz_json = {
+            "polymers": [],
+            "ligands": []
+        }
+        name = None
+
+        # --- Step 1: Process binding affinity settings first ---
+        affinity_settings = None
+        affinity_target_id = None
+
+        # Find and remove the settings dictionary from the list
+        # Using a list comprehension to create a new list without the settings
+        entities = gui_data.get("entities", [])
+        affinity_settings = gui_data.get("binding_affinity_settings", None)
+        name = gui_data.get("name", None)
+
+        if affinity_settings and affinity_settings.get("calculate_affinity"):
+            # Parse the chain ID from a string like "Ligand (CCD) CHAIN_ID: B"
+            selected_ligand_str = affinity_settings.get("selected_ligand", "")
+            match = re.search(r'CHAIN_ID:\s*(\w+)', selected_ligand_str)
+            if match:
+                affinity_target_id = match.group(1)
+
+        # --- Step 2: Iterate through entities and populate polymers and ligands ---
+        for entity in entities:
+            entity_type = entity.get("type")
+            chain_id = entity.get("chain_id")
+
+            # Handle Polymers
+            if entity_type in ["Protein", "DNA", "RNA"]:
+                sequence = entity.get("sequence", "")
+                polymer = {
+                    "id": chain_id,
+                    "molecule_type": entity_type.lower(),
+                    "sequence": sequence,
+                    "cyclic": entity.get("cyclic", False),
+                    "modifications": entity.get("modifications", [])
+                }
+                if entity_type == "Protein":
+                    # Create a placeholder MSA as required by the Boltz format
+                    polymer["msa"] = {
+                        "uniref90": {
+                            "a3m": {
+                                "alignment": f">chain_{chain_id}\n{sequence}",
+                                "format": "a3m"
+                            }
+                        }
+                    }
+                boltz_json["polymers"].append(polymer)
+
+            # Handle Ligands
+            elif entity_type in ["Ligand (CCD)", "Ligand (SMILES)"]:
+                # IMPORTANT: Boltz requires a SMILES string. This script assumes the input
+                # ccd_string or smiles_string is a valid SMILES. It cannot convert names like "ATP".
+                entity_string = entity.get("smiles_string") or entity.get("ccd_string", "")
+                lig_param = "smiles" if entity_type == "Ligand (SMILES)" else "ccd"
+                ligand = {
+                    lig_param: entity_string,
+                    "id": chain_id,
+                    # Set predict_affinity based on the settings processed earlier
+                    "predict_affinity": (chain_id == affinity_target_id)
+                }
+                boltz_json["ligands"].append(ligand)
+        if not boltz_json["ligands"]:
+            del boltz_json["ligands"]  # Remove empty ligands list if no ligands present
+        if not boltz_json["polymers"]: 
+            del boltz_json["polymers"]  # Remove empty polymers list if no polymers present
+        return boltz_json, name
+
+
+    async def predict(self, boltz_json: dict, **kwargs) -> Dict[str, Any]:
         """Predict protein structure using Boltz2
         
         Args:
-            sequence: Amino acid sequence
+            boltz_json: Input data in Boltz JSON format
             **kwargs: Additional parameters including:
                 recycling_steps: Number of recycling steps (default: 1)
                 sampling_steps: Number of sampling steps (default: 50)
@@ -46,38 +127,21 @@ class Boltz2Predictor(StructurePredictor):
         """
         # Prepare request data
         data = {
-            "polymers": [{
-                "id": "A",
-                "molecule_type": "protein",
-                "sequence": sequence,
-                "msa": {
-                    "uniref90": {
-                        "a3m": {
-                            "alignment": f">seq1\n{sequence}",
-                            "format": "a3m"
-                        }
-                    }
-                }
-            }],
-            # "ligands": [{
-            #     "smiles": "CC(=O)OC1=CC=CC=C1C(=O)O",
-            #     "id": "L1",
-            #     "predict_affinity": True
-            # }],
             "recycling_steps": kwargs.get('recycling_steps', 1),
             "sampling_steps": kwargs.get('sampling_steps', 50),
             "diffusion_samples": kwargs.get('diffusion_samples', 3),
             "step_scale": kwargs.get('step_scale', 1.2),
             "without_potentials": kwargs.get('without_potentials', True)
         }
+        boltz_json.update(data)
         
-        # Make async call in sync context
-        result = asyncio.run(self._make_nvcf_call(
+        # instead of asyncio.run, we make the predict function async and call await here
+        result = await self._make_nvcf_call(
             function_url=self.PUBLIC_URL,
-            data=data,
+            data=boltz_json,
             poll_seconds=kwargs.get('poll_seconds', 300),
             timeout_seconds=kwargs.get('timeout_seconds', 400)
-        ))
+        )
         
         return result
         
