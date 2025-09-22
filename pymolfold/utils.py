@@ -1,4 +1,5 @@
 """Utility functions for structure prediction and analysis"""
+
 import re
 import json
 from pathlib import Path
@@ -7,13 +8,19 @@ import sys
 from typing import Union, Dict, Any
 from pymol import cmd as pymol_cmd
 
+
 def pip_install(pkg, index_url=None):
     cmd = [sys.executable, "-m", "pip", "install", pkg]
     if index_url:
         cmd.extend(["-i", index_url])
     print(f"[PfPlugin] Installing {pkg}...")
     try:
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
+        )
         for line in process.stdout:
             print(line.strip())
         process.wait()
@@ -23,19 +30,20 @@ def pip_install(pkg, index_url=None):
             print(f"[PfPlugin] Failed to install {pkg}")
     except Exception as e:
         print(f"[PfPlugin] Failed to install {pkg}: {e}")
-        
+
+
 def cal_plddt(pdb_string: str) -> float:
     """Calculate average pLDDT score from PDB B-factors
-    
+
     Args:
         pdb_string: PDB format structure string
-        
+
     Returns:
         Average pLDDT score (0-100 scale)
     """
     lines = pdb_string.split("\n")
     plddts = []
-    
+
     for line in lines:
         if " CA " in line:
             try:
@@ -43,15 +51,16 @@ def cal_plddt(pdb_string: str) -> float:
                 plddts.append(plddt)
             except (ValueError, IndexError):
                 continue
-                
+
     if not plddts:
         return 0.0
-        
+
     # Convert 0-1 scale to 0-100 if needed
     if max(plddts) <= 1.0:
         plddts = [plddt * 100 for plddt in plddts]
-        
+
     return sum(plddts) / len(plddts)
+
 
 def color_plddt(selection="all"):
     """
@@ -71,8 +80,9 @@ def color_plddt(selection="all"):
     """
     # Alphafold color scheme for plddt
     pymol_cmd.set_color("high_lddt_c", [0, 0.325490196078431, 0.843137254901961])
-    pymol_cmd.set_color("normal_lddt_c", [
-                  0.341176470588235, 0.792156862745098, 0.976470588235294])
+    pymol_cmd.set_color(
+        "normal_lddt_c", [0.341176470588235, 0.792156862745098, 0.976470588235294]
+    )
     pymol_cmd.set_color("medium_lddt_c", [1, 0.858823529411765, 0.070588235294118])
     pymol_cmd.set_color("low_lddt_c", [1, 0.494117647058824, 0.270588235294118])
 
@@ -82,20 +92,22 @@ def color_plddt(selection="all"):
 
     if b_scale > 0:
         pymol_cmd.select("high_lddt", f"({selection}) and (b >90 or b =90)")
-        pymol_cmd.select("normal_lddt",
-                   f"({selection}) and ((b <90 and b >70) or (b =70))")
-        pymol_cmd.select("medium_lddt",
-                   f"({selection}) and ((b <70 and b >50) or (b=50))")
         pymol_cmd.select(
-            "low_lddt", f"({selection}) and ((b <50 and b >0 ) or (b=0))")
+            "normal_lddt", f"({selection}) and ((b <90 and b >70) or (b =70))"
+        )
+        pymol_cmd.select(
+            "medium_lddt", f"({selection}) and ((b <70 and b >50) or (b=50))"
+        )
+        pymol_cmd.select("low_lddt", f"({selection}) and ((b <50 and b >0 ) or (b=0))")
     else:
         pymol_cmd.select("high_lddt", f"({selection}) and (b >.90 or b =.90)")
-        pymol_cmd.select("normal_lddt",
-                   f"({selection}) and ((b <.90 and b >.70) or (b =.70))")
-        pymol_cmd.select("medium_lddt",
-                   f"({selection}) and ((b <.70 and b >.50) or (b=.50))")
         pymol_cmd.select(
-            "low_lddt", f"({selection}) and ((b <.50 and b >0 ) or (b=0))")
+            "normal_lddt", f"({selection}) and ((b <.90 and b >.70) or (b =.70))"
+        )
+        pymol_cmd.select(
+            "medium_lddt", f"({selection}) and ((b <.70 and b >.50) or (b=.50))"
+        )
+        pymol_cmd.select("low_lddt", f"({selection}) and ((b <.50 and b >0 ) or (b=0))")
 
     pymol_cmd.delete("test_b_scale")
 
@@ -107,13 +119,14 @@ def color_plddt(selection="all"):
 
     # set background color
     pymol_cmd.bg_color("white")
-    
+
+
 def clean_sequence(sequence: str) -> str:
     """Clean amino acid sequence string
-    
+
     Args:
         sequence: Raw sequence string
-        
+
     Returns:
         Cleaned sequence with only valid amino acid letters
     """
@@ -124,13 +137,14 @@ def clean_sequence(sequence: str) -> str:
     sequence = re.sub("^[:]+", "", sequence)
     sequence = re.sub("[:]+$", "", sequence)
     return sequence
-    
+
+
 def safe_filename(name: str) -> str:
     """Convert string to safe filename
-    
+
     Args:
         name: Original filename string
-        
+
     Returns:
         Safe filename with invalid characters removed/replaced
     """
@@ -141,24 +155,219 @@ def safe_filename(name: str) -> str:
     name = re.sub(r"\s+", "_", name)
     return name or "model"
 
+
 def save_json_output(
-    data: Dict[str, Any],
-    output_file: Union[str, Path],
-    indent: int = 4
+    data: Dict[str, Any], output_file: Union[str, Path], indent: int = 4
 ) -> Path:
     """Save prediction results to JSON file
-    
+
     Args:
         data: Prediction results dictionary
         output_file: Output JSON file path
         indent: JSON indentation level
-        
+
     Returns:
         Path to saved file
     """
     output_path = Path(output_file)
-    output_path.write_text(
-        json.dumps(data, indent=indent),
-        encoding='utf-8'
-    )
+    output_path.write_text(json.dumps(data, indent=indent), encoding="utf-8")
     return output_path
+
+
+def visualize_pxmeter_metrics(data: dict, output_dir: str = "metrics_output"):
+    """
+    Parses a metrics JSON, handles missing keys gracefully, and outputs
+    a comprehensive summary CSV and several specific visualization plots (bar chart and heatmaps).
+
+    Args:
+        data (dict): The input JSON data as a Python dictionary.
+        output_dir (str): The directory to save the output files.
+    """
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    from pathlib import Path
+
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    entry_id = data.get("entry_id", "unknown_entry")
+    print(f"Visualizing Entry ID: {entry_id}")
+
+    # --- 1. Enhanced Data Preparation (No changes here) ---
+    metrics_list = []
+    complex_metrics = data.get("complex", {})
+    metrics_list.append(
+        {
+            "Level": "Complex",
+            "Chain/Interface": "Overall",
+            "Metric": "lDDT",
+            "Value": complex_metrics.get("lddt"),
+        }
+    )
+    metrics_list.append(
+        {
+            "Level": "Complex",
+            "Chain/Interface": "Overall",
+            "Metric": "Clashes",
+            "Value": complex_metrics.get("clashes"),
+        }
+    )
+
+    chain_metrics = data.get("chain", {})
+    for chain_id, chain_data in chain_metrics.items():
+        metrics_list.append(
+            {
+                "Level": "Chain",
+                "Chain/Interface": f"Chain {chain_id}",
+                "Metric": "lDDT",
+                "Value": chain_data.get("lddt"),
+            }
+        )
+
+    interface_metrics = data.get("interface", {})
+    for interface_id, interface_data in interface_metrics.items():
+        metrics_list.append(
+            {
+                "Level": "Interface",
+                "Chain/Interface": interface_id,
+                "Metric": "lDDT",
+                "Value": interface_data.get("lddt"),
+            }
+        )
+        if "dockq" in interface_data:
+            metrics_list.append(
+                {
+                    "Level": "Interface",
+                    "Chain/Interface": interface_id,
+                    "Metric": "DockQ",
+                    "Value": interface_data.get("dockq"),
+                }
+            )
+
+        dockq_info = interface_data.get("dockq_info", {})
+        for key, value in dockq_info.items():
+            if key in ["F1", "iRMSD", "LRMSD", "fnat"]:
+                metrics_list.append(
+                    {
+                        "Level": "Interface",
+                        "Chain/Interface": interface_id,
+                        "Metric": key,
+                        "Value": value,
+                    }
+                )
+
+    # --- 2. Create and Save Comprehensive CSV (No changes here) ---
+    df = pd.DataFrame(metrics_list)
+    df.dropna(subset=["Value"], inplace=True)
+    csv_path = Path(output_dir) / f"{entry_id}_summary_metrics.csv"
+    df.to_csv(csv_path, index=False)
+    print(f"✓ Comprehensive summary metrics saved to: {csv_path}")
+
+    # --- 3. Generate and Save Visualizations (Plots are modified) ---
+    sns.set_theme(style="white")  # Using white style for better heatmap contrast
+
+    # Plot 1: Combined Complex and Chain lDDT Scores (No changes here)
+    lddt_df = df[
+        (df["Metric"] == "lDDT") & (df["Level"].isin(["Complex", "Chain"]))
+    ].copy()
+    if not lddt_df.empty:
+        lddt_df["sort_key"] = lddt_df["Chain/Interface"].apply(
+            lambda x: f"0_{x}" if x == "Overall" else f"1_{x}"
+        )
+        lddt_df.sort_values("sort_key", inplace=True)
+        plt.figure(figsize=(10, 6))
+        ax = sns.barplot(
+            x="Chain/Interface",
+            y="Value",
+            data=lddt_df,
+            palette="coolwarm",
+            hue="Chain/Interface",
+            dodge=False,
+        )
+        ax.set_title(
+            f"Overall Complex and Per-Chain lDDT Scores for {entry_id}", fontsize=16
+        )
+        ax.set_ylabel("lDDT Score", fontsize=12)
+        ax.set_xlabel("Entity", fontsize=12)
+        ax.set_ylim(0, 1.05)
+        for p in ax.patches:
+            ax.annotate(
+                f"{p.get_height():.3f}",
+                (p.get_x() + p.get_width() / 2.0, p.get_height()),
+                ha="center",
+                va="center",
+                fontsize=11,
+                color="black",
+                xytext=(0, 5),
+                textcoords="offset points",
+            )
+        plt.legend([], [], frameon=False)
+        plot_path = Path(output_dir) / f"{entry_id}_combined_lddt.png"
+        plt.savefig(plot_path, bbox_inches="tight")
+        plt.close()
+        print(f"✓ Combined lDDT plot saved to: {plot_path}")
+
+    # --- Plot 2: Interface Scores as N x N Heatmaps (【MODIFIED SECTION】) ---
+    interface_df = df[df["Level"] == "Interface"]
+    # Get all unique chain IDs involved in the complex
+    unique_chains = sorted(list(data.get("chain", {}).keys()))
+
+    if not unique_chains:
+        print("No chain information found, skipping heatmap generation.")
+        return
+
+    metrics_to_plot = ["lDDT", "DockQ", "F1", "iRMSD", "LRMSD", "fnat"]
+    heatmap_matrices = []
+    titles = []
+
+    for metric in metrics_to_plot:
+        metric_df = interface_df[interface_df["Metric"] == metric]
+        if not metric_df.empty:
+            # Create an empty N x N DataFrame, initialized with NaN
+            heatmap_matrix = pd.DataFrame(
+                index=unique_chains, columns=unique_chains, dtype=float
+            )
+            # Populate the matrix symmetrically
+            for _, row in metric_df.iterrows():
+                chains = row["Chain/Interface"].split(",")
+                if len(chains) == 2:
+                    chain1, chain2 = chains
+                    value = row["Value"]
+                    heatmap_matrix.loc[chain1, chain2] = value
+                    heatmap_matrix.loc[chain2, chain1] = value
+            heatmap_matrices.append(heatmap_matrix)
+            titles.append(f"Interface {metric}")
+
+    # Plot all heatmaps in a 3x2 grid
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+
+    fig, axes = plt.subplots(3, 2, figsize=(16, 18))
+    axes = axes.flatten()
+
+    for i, (matrix, title) in enumerate(zip(heatmap_matrices, titles)):
+        cmap = "viridis_r" if "RMSD" in title else "viridis"
+        mask = matrix.isnull()
+        sns.heatmap(
+            matrix,
+            annot=True,
+            fmt=".3f",
+            cmap=cmap,
+            linewidths=0.5,
+            mask=mask,
+            cbar_kws={"label": f"{metrics_to_plot[i]} Score"},
+            ax=axes[i],
+        )
+        axes[i].set_title(title, fontsize=16)
+        axes[i].set_xlabel("Chain ID", fontsize=12)
+        axes[i].set_ylabel("Chain ID", fontsize=12)
+
+    # Hide any unused subplots if less than 6
+    for j in range(len(heatmap_matrices), 6):
+        fig.delaxes(axes[j])
+
+    fig.suptitle(f"Interface Metrics Heatmaps for {entry_id}", fontsize=20)
+    plt.tight_layout(rect=[0, 0, 1, 0.97])
+    plot_path = Path(output_dir) / f"{entry_id}_interface_metrics_grid.png"
+    plt.savefig(plot_path, bbox_inches="tight")
+    plt.close()
+    print(f"✓ All interface metric heatmaps saved to: {plot_path}")
