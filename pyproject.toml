@@ -62,7 +62,8 @@ dependencies = [
     "rdkit==2025.3.6",
     "uvicorn==0.22.0",
     "esm==3.2.1",
-    "torch>=2.0.0" 
+    "torch>=2.0.0",
+    "pxmeter==0.1.4"
 ]
 
 [project.urls]

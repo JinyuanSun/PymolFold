@@ -154,6 +154,27 @@ def fetch_af(uniprot_id):
     pymol_cmd.do(f"color_plddt AF-{uniprot_id}-F1-model_v4")
 
 
+def pxmeter_align(ref_cif, model_cif):
+    """
+    https://github.com/bytedance/PXMeter
+    Only support PPI and CIF format
+    Must enter path to cif files, no existed way to get object path in PyMOL
+    """
+    from pxmeter.eval import evaluate
+
+    print("Evaluating structure with PXMeter...")
+    metric_result = evaluate(
+        ref_cif=ref_cif,
+        model_cif=model_cif,
+    )
+
+    json_dict = metric_result.to_json_dict()
+    utils.visualize_pxmeter_metrics(
+        json_dict, output_dir=os.path.join(ABS_PATH, "pxmeter_results")
+    )
+    # return json_dict
+
+
 # Register commands
 def __init_plugin__(app=None):
     """Initialize the plugin when PyMOL loads it
@@ -166,6 +187,7 @@ def __init_plugin__(app=None):
     pymol_cmd.extend("set_base_url", set_base_url)
 
     pymol_cmd.extend("color_plddt", utils.color_plddt)
+    pymol_cmd.extend("pxmeter_align", pxmeter_align)
     pymol_cmd.extend("fetch_am", query_am_hegelab)
     pymol_cmd.extend("fetch_af", fetch_af)
 

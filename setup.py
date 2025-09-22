@@ -19,6 +19,7 @@ setup(
         "uvicorn==0.22.0",
         "esm==3.2.1",
         "torch>=2.0.0",
+        "pxmeter==0.1.4",
     ],
     python_requires=">=3.8",
     author="Jinyuan Sun, Yifan Deng",
