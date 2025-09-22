@@ -5,46 +5,64 @@ from rdkit import Chem
 EXAMPLES = [
     {
         "title": "A transcription factor and DNA complex",
-        "description": """DNA Chain A:
-TGGGTCACGT GTTCC
-
-DNA Chain B:
-AGGAACACGT GACCC
-
-PROTEIN Chain C:
-MGREEPLNHVEAERQRREKLNQRFRYALRAVVPVNVSKMDKASLLGDATAYINELKSKVVKTESEKLQIKNQLEEVKLELAGRLEHHHHHH
-
-PROTEIN Chain D:
-MGREEPLNHVEAERQRREKLNQRFRYALRAVVPVNVSKMDKASLLGDATAYINELKSKVVKTESEKLQIKNQLEEVKLELAGRLEHHHHHH""",
+        "description": (
+            "DNA Chain A:\n"
+            "TGGGTCACGTGTTCC\n\n"
+            "DNA Chain B:\n"
+            "AGGAACACGTGACCC\n\n"
+            "PROTEIN Chain C:\n"
+            "MGREEPLNHVEAERQRREKLNQRFRYALRAVVPVNVSKMDKASLLGDATAYINELKSKVVKTESEKLQIKNQLEEVKLELAGRLEHHHHHH\n\n"
+            "PROTEIN Chain D:\n"
+            "MGREEPLNHVEAERQRREKLNQRFRYALRAVVPVNVSKMDKASLLGDATAYINELKSKVVKTESEKLQIKNQLEEVKLELAGRLEHHHHHH"
+        ),
         "entities": [
-            {"type": "DNA", "chain_id": "A", "sequence": "TGGGTCACGTGTTCC"},
-            {"type": "DNA", "chain_id": "B", "sequence": "AGGAACACGTGACCC"},
+            {
+                "type": "DNA",
+                "chain_id": "A",
+                "sequence": "TGGGTCACGTGTTCC",
+            },
+            {
+                "type": "DNA",
+                "chain_id": "B",
+                "sequence": "AGGAACACGTGACCC",
+            },
             {
                 "type": "Protein",
                 "chain_id": "C",
-                "sequence": "MGREEPLNHVEAERQRREKLNQRFRYALRAVVPVNVSKMDKASLLGDATAYINELKSKVVKTESEKLQIKNQLEEVKLELAGRLEHHHHHH",
+                "sequence": (
+                    "MGREEPLNHVEAERQRREKLNQRFRYALRAVVPVNVSKMDKASLLGDATAYINELKSKVVKTESEKLQIKNQLEEVKLELAGRLEHHHHHH"
+                ),
             },
             {
                 "type": "Protein",
                 "chain_id": "D",
-                "sequence": "MGREEPLNHVEAERQRREKLNQRFRYALRAVVPVNVSKMDKASLLGDATAYINELKSKVVKTESEKLQIKNQLEEVKLELAGRLEHHHHHH",
+                "sequence": (
+                    "MGREEPLNHVEAERQRREKLNQRFRYALRAVVPVNVSKMDKASLLGDATAYINELKSKVVKTESEKLQIKNQLEEVKLELAGRLEHHHHHH"
+                ),
             },
         ],
     },
     {
         "title": "A protein-ligand complex (ATP)",
-        "description": """PROTEIN Chain A:
-MTEYKKLVVVGAGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQ
-
-LIGAND(CCD) Chain B:
-ATP""",
+        "description": (
+            "PROTEIN Chain A:\n"
+            "MTEYKKLVVVGAGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQ\n\n"
+            "LIGAND(CCD) Chain B:\n"
+            "ATP"
+        ),
         "entities": [
             {
                 "type": "Protein",
                 "chain_id": "A",
-                "sequence": "MTEYKKLVVVGAGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQ",
+                "sequence": (
+                    "MTEYKKLVVVGAGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQ"
+                ),
             },
-            {"type": "Ligand (CCD)", "chain_id": "B", "ccd_string": "ATP"},
+            {
+                "type": "Ligand (CCD)",
+                "chain_id": "B",
+                "ccd_string": "ATP",
+            },
         ],
     },
 ]
@@ -380,8 +398,6 @@ def gather_submission_data():
 
 
 # New unified submission callback using session state
-
-
 def run_submission():
     st.session_state.running = True
     st.session_state.run_errors = []
