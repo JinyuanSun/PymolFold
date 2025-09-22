@@ -7,9 +7,9 @@ EXAMPLES = [
         "title": "A transcription factor and DNA complex",
         "description": (
             "DNA Chain A:\n"
-            "TGGGTCACGT GTTCC\n\n"
+            "TGGGTCACGTGTTCC\n\n"
             "DNA Chain B:\n"
-            "AGGAACACGT GACCC\n\n"
+            "AGGAACACGTGACCC\n\n"
             "PROTEIN Chain C:\n"
             "MGREEPLNHVEAERQRREKLNQRFRYALRAVVPVNVSKMDKASLLGDATAYINELKSKVVKTESEKLQIKNQLEEVKLELAGRLEHHHHHH\n\n"
             "PROTEIN Chain D:\n"
