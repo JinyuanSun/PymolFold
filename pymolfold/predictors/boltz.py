@@ -108,7 +108,7 @@ class Boltz2Predictor(StructurePredictor):
             del boltz_json[
                 "polymers"
             ]  # Remove empty polymers list if no polymers present
-        return boltz_json, name
+        return boltz_json, name, affinity_target_id
 
     async def predict(self, boltz_json: dict, **kwargs) -> Dict[str, Any]:
         """Predict protein structure using Boltz2
@@ -129,10 +129,10 @@ class Boltz2Predictor(StructurePredictor):
         """
         # Prepare request data
         data = {
-            "recycling_steps": kwargs.get("recycling_steps", 1),
-            "sampling_steps": kwargs.get("sampling_steps", 50),
-            "diffusion_samples": kwargs.get("diffusion_samples", 3),
-            "step_scale": kwargs.get("step_scale", 1.2),
+            "recycling_steps": kwargs.get("recycling_steps", 3),
+            "sampling_steps": kwargs.get("sampling_steps", 20),
+            "diffusion_samples": kwargs.get("diffusion_samples", 1),
+            "step_scale": kwargs.get("step_scale", 1.6),
             "without_potentials": kwargs.get("without_potentials", True),
         }
         boltz_json.update(data)

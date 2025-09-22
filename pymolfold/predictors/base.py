@@ -68,8 +68,6 @@ class StructurePredictor(ABC):
             # Save structure
             path.write_text(struct["structure"])
             saved_files.append(path)
-            print(f"Saved in {path}")
-
         return saved_files
 
     @staticmethod
