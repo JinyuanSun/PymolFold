@@ -1,4 +1,5 @@
 """PyMolFold package initialization"""
+
 from .version import __version__
 
 # These imports must come after __version__
