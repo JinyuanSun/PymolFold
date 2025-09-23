@@ -119,19 +119,24 @@ color_plddt
 ```
 
 #### 4. How to evaluate the predicted results?
-We utilized [PXMeter](https://github.com/bytedance/PXMeter) to evaluate the differences between predicted structures and reference structures. PXMeter(0.1.4) now only supports PPI analysis, and more details can be seen in their repo.
+We utilized [PXMeter](https://github.com/bytedance/PXMeter) to evaluate the differences between predicted structures and reference structures. PXMeter(0.1.4) now only supports PPI analysis, and more details can be seen in their repo. But unfortunately, we copied the repo and refine it since the python version may conflict with the one of PyMOL.
 
 But how to use in PyMolFold?
 ```python
-pxmeter_align full_path_to/real_struct.cif full_path_to/predict_struct.cif 
+pxmeter_align full_path_to/real_struct.cif,full_path_to/predict_struct.cif 
 ```
-Unfortunately, we haven't fix out how to get the structure path from pymol object, so you guys have to manually provide them. Besides, only cif format is supported now.
+Windows users PAY ATTENTION, make sure there is no double quotes around the path.
+
+It takes around 20s to loading when you first time using this method.
+
+Unfortunately (again), we haven't fix out how to get the structure path from pymol object, so you guys have to manually provide them. Besides, only cif format is supported now.
 
 After running the script above, you will get the metrics in `csv` and `png` format under the folder you setted (if not set, it will generate in the root path). You can use the exmaple files under `pymolfold/example/`, and the results should be exactly the same as `pymolfold/example/metrics`.
+<img src="./img/pxmeter.png" width="400">
 
 ## Others
 **Version**
-Current version is 0.2.1, and if you are interesting in the source code, you can install pymolfold directly by `pip install pymolfold==0.2.1`.
+Current version is 0.2.4, and if you are interesting in the source code, you can install pymolfold directly by `pip install pymolfold==0.2.4`.
 
 **Info**  
 The PymolFold service is running on a A5000 instance (cost $100 a week), and the sequence length is limited to 1000aa.
