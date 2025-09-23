@@ -132,6 +132,7 @@ It takes around 20s to loading when you first time using this method.
 Unfortunately (again), we haven't fix out how to get the structure path from pymol object, so you guys have to manually provide them. Besides, only cif format is supported now.
 
 After running the script above, you will get the metrics in `csv` and `png` format under the folder you setted (if not set, it will generate in the root path). You can use the exmaple files under `pymolfold/example/`, and the results should be exactly the same as `pymolfold/example/metrics`.
+
 <img src="./img/pxmeter.png" width="400">
 
 ## Others
