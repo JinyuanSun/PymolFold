@@ -160,7 +160,7 @@ def pxmeter_align(ref_cif, model_cif):
     Only support PPI and CIF format
     Must enter path to cif files, no existed way to get object path in PyMOL
     """
-    from pxmeter.eval import evaluate
+    from shadowpxmeter.eval import evaluate
 
     print("Evaluating structure with PXMeter...")
     metric_result = evaluate(
