@@ -29,11 +29,13 @@ async def run_boltz2_prediction(payload: Payload):
     """Endpoint to receive data from Streamlit, run prediction, and load into PyMOL."""
     try:
         predictor = Boltz2Predictor()
-        boltz_json, name, affinity_target_id = predictor.convert_to_boltz_json(
-            payload.sub_data
+        boltz_json, name, affinity_target_id, diffusion_samples = (
+            predictor.convert_to_boltz_json(payload.sub_data)
         )
 
-        result = await predictor.predict(boltz_json)  # Assuming predict is now async
+        result = await predictor.predict(
+            boltz_json, diffusion_samples=diffusion_samples
+        )  # Assuming predict is now async
         saved_files = predictor.save_structures(result, name)
 
         if not saved_files:
