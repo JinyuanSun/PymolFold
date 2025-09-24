@@ -1,6 +1,7 @@
 __pycache__
 *venv*
 ./build
+utils/
 tests
 
 *egg-info*
@@ -15,3 +16,5 @@ test.ipynb
 .coverage
 *.pkl
 *.ipynb
+
+pxmeter_results/
