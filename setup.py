@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pymolfold",
-    version="0.2.1",
+    version="0.2.5",
     packages=find_packages(),
     install_requires=[
         "requests>=2.25.0",
@@ -19,6 +19,8 @@ setup(
         "uvicorn==0.22.0",
         "esm==3.2.1",
         "torch>=2.0.0",
+        "shadowpxmeter==0.0.3",
+        "seaborn==0.13.2",
     ],
     python_requires=">=3.8",
     author="Jinyuan Sun, Yifan Deng",

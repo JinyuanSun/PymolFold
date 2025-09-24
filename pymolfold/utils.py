@@ -172,3 +172,202 @@ def save_json_output(
     output_path = Path(output_file)
     output_path.write_text(json.dumps(data, indent=indent), encoding="utf-8")
     return output_path
+
+
+def visualize_pxmeter_metrics(data: dict, output_dir: str = "metrics_output"):
+    """
+    Parses a metrics JSON, handles missing keys gracefully, and outputs
+    a comprehensive summary CSV and several specific visualization plots (bar chart and heatmaps).
+
+    Args:
+        data (dict): The input JSON data as a Python dictionary.
+        output_dir (str): The directory to save the output files.
+    """
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    from pathlib import Path
+
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    entry_id = data.get("entry_id", "unknown_entry")
+    print(f"Visualizing Entry ID: {entry_id}")
+
+    # --- 1. Enhanced Data Preparation (No changes here) ---
+    metrics_list = []
+    complex_metrics = data.get("complex", {})
+    metrics_list.append(
+        {
+            "Level": "Complex",
+            "Chain/Interface": "Overall",
+            "Metric": "lDDT",
+            "Value": complex_metrics.get("lddt"),
+        }
+    )
+    metrics_list.append(
+        {
+            "Level": "Complex",
+            "Chain/Interface": "Overall",
+            "Metric": "Clashes",
+            "Value": complex_metrics.get("clashes"),
+        }
+    )
+
+    chain_metrics = data.get("chain", {})
+    for chain_id, chain_data in chain_metrics.items():
+        metrics_list.append(
+            {
+                "Level": "Chain",
+                "Chain/Interface": f"Chain {chain_id}",
+                "Metric": "lDDT",
+                "Value": chain_data.get("lddt"),
+            }
+        )
+
+    interface_metrics = data.get("interface", {})
+    for interface_id, interface_data in interface_metrics.items():
+        metrics_list.append(
+            {
+                "Level": "Interface",
+                "Chain/Interface": interface_id,
+                "Metric": "lDDT",
+                "Value": interface_data.get("lddt"),
+            }
+        )
+        if "dockq" in interface_data:
+            metrics_list.append(
+                {
+                    "Level": "Interface",
+                    "Chain/Interface": interface_id,
+                    "Metric": "DockQ",
+                    "Value": interface_data.get("dockq"),
+                }
+            )
+
+        dockq_info = interface_data.get("dockq_info", {})
+        for key, value in dockq_info.items():
+            if key in ["F1", "iRMSD", "LRMSD", "fnat"]:
+                metrics_list.append(
+                    {
+                        "Level": "Interface",
+                        "Chain/Interface": interface_id,
+                        "Metric": key,
+                        "Value": value,
+                    }
+                )
+
+    # --- 2. Create and Save Comprehensive CSV (No changes here) ---
+    df = pd.DataFrame(metrics_list)
+    df.dropna(subset=["Value"], inplace=True)
+    csv_path = Path(output_dir) / f"{entry_id}_summary_metrics.csv"
+    df.to_csv(csv_path, index=False)
+    print(f"✓ Comprehensive summary metrics saved to: {csv_path}")
+
+    # --- 3. Generate and Save Visualizations (Plots are modified) ---
+    sns.set_theme(style="white")  # Using white style for better heatmap contrast
+
+    # Plot 1: Combined Complex and Chain lDDT Scores (No changes here)
+    lddt_df = df[
+        (df["Metric"] == "lDDT") & (df["Level"].isin(["Complex", "Chain"]))
+    ].copy()
+    if not lddt_df.empty:
+        lddt_df["sort_key"] = lddt_df["Chain/Interface"].apply(
+            lambda x: f"0_{x}" if x == "Overall" else f"1_{x}"
+        )
+        lddt_df.sort_values("sort_key", inplace=True)
+        plt.figure(figsize=(10, 6))
+        ax = sns.barplot(
+            x="Chain/Interface",
+            y="Value",
+            data=lddt_df,
+            palette="coolwarm",
+            hue="Chain/Interface",
+            dodge=False,
+        )
+        ax.set_title(
+            f"Overall Complex and Per-Chain lDDT Scores for {entry_id}", fontsize=16
+        )
+        ax.set_ylabel("lDDT Score", fontsize=12)
+        ax.set_xlabel("Entity", fontsize=12)
+        ax.set_ylim(0, 1.05)
+        for p in ax.patches:
+            ax.annotate(
+                f"{p.get_height():.3f}",
+                (p.get_x() + p.get_width() / 2.0, p.get_height()),
+                ha="center",
+                va="center",
+                fontsize=11,
+                color="black",
+                xytext=(0, 5),
+                textcoords="offset points",
+            )
+        plt.legend([], [], frameon=False)
+        plot_path = Path(output_dir) / f"{entry_id}_combined_lddt.png"
+        plt.savefig(plot_path, bbox_inches="tight")
+        plt.close()
+        print(f"✓ Combined lDDT plot saved to: {plot_path}")
+
+    # --- Plot 2: Interface Scores as N x N Heatmaps (【MODIFIED SECTION】) ---
+    interface_df = df[df["Level"] == "Interface"]
+    # Get all unique chain IDs involved in the complex
+    unique_chains = sorted(list(data.get("chain", {}).keys()))
+
+    if not unique_chains:
+        print("No chain information found, skipping heatmap generation.")
+        return
+
+    metrics_to_plot = ["lDDT", "DockQ", "F1", "iRMSD", "LRMSD", "fnat"]
+    heatmap_matrices = []
+    titles = []
+
+    for metric in metrics_to_plot:
+        metric_df = interface_df[interface_df["Metric"] == metric]
+        if not metric_df.empty:
+            # Create an empty N x N DataFrame, initialized with NaN
+            heatmap_matrix = pd.DataFrame(
+                index=unique_chains, columns=unique_chains, dtype=float
+            )
+            # Populate the matrix symmetrically
+            for _, row in metric_df.iterrows():
+                chains = row["Chain/Interface"].split(",")
+                if len(chains) == 2:
+                    chain1, chain2 = chains
+                    value = row["Value"]
+                    heatmap_matrix.loc[chain1, chain2] = value
+                    heatmap_matrix.loc[chain2, chain1] = value
+            heatmap_matrices.append(heatmap_matrix)
+            titles.append(f"Interface {metric}")
+
+    # Plot all heatmaps in a 3x2 grid
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+
+    fig, axes = plt.subplots(3, 2, figsize=(16, 18))
+    axes = axes.flatten()
+
+    for i, (matrix, title) in enumerate(zip(heatmap_matrices, titles)):
+        cmap = "viridis_r" if "RMSD" in title else "viridis"
+        mask = matrix.isnull()
+        sns.heatmap(
+            matrix,
+            annot=True,
+            fmt=".3f",
+            cmap=cmap,
+            linewidths=0.5,
+            mask=mask,
+            cbar_kws={"label": f"{metrics_to_plot[i]} Score"},
+            ax=axes[i],
+        )
+        axes[i].set_title(title, fontsize=16)
+        axes[i].set_xlabel("Chain ID", fontsize=12)
+        axes[i].set_ylabel("Chain ID", fontsize=12)
+
+    # Hide any unused subplots if less than 6
+    for j in range(len(heatmap_matrices), 6):
+        fig.delaxes(axes[j])
+
+    fig.suptitle(f"Interface Metrics Heatmaps for {entry_id}", fontsize=20)
+    plt.tight_layout(rect=[0, 0, 1, 0.97])
+    plot_path = Path(output_dir) / f"{entry_id}_interface_metrics_grid.png"
+    plt.savefig(plot_path, bbox_inches="tight")
+    plt.close()
+    print(f"✓ All interface metric heatmaps saved to: {plot_path}")
