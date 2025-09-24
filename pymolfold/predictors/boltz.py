@@ -41,10 +41,7 @@ class Boltz2Predictor(StructurePredictor):
         import re
 
         boltz_json = {"polymers": [], "ligands": []}
-        name = None
-
         # --- Step 1: Process binding affinity settings first ---
-        affinity_settings = None
         affinity_target_id = None
 
         # Find and remove the settings dictionary from the list
@@ -52,6 +49,7 @@ class Boltz2Predictor(StructurePredictor):
         entities = gui_data.get("entities", [])
         affinity_settings = gui_data.get("binding_affinity_settings", None)
         name = gui_data.get("name", None)
+        diffusion_samples = gui_data.get("diffusion_samples", 1)
 
         if affinity_settings and affinity_settings.get("calculate_affinity"):
             # Parse the chain ID from a string like "Ligand (CCD) CHAIN_ID: B"
@@ -108,7 +106,7 @@ class Boltz2Predictor(StructurePredictor):
             del boltz_json[
                 "polymers"
             ]  # Remove empty polymers list if no polymers present
-        return boltz_json, name, affinity_target_id
+        return boltz_json, name, affinity_target_id, diffusion_samples
 
     async def predict(self, boltz_json: dict, **kwargs) -> Dict[str, Any]:
         """Predict protein structure using Boltz2

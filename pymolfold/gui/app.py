@@ -347,6 +347,9 @@ def gather_submission_data():
     if st.session_state.get("entity_name"):
         submission["name"] = st.session_state.entity_name
 
+    if st.session_state.get("diffusion_samples"):
+        submission["diffusion_samples"] = st.session_state.diffusion_samples
+
     for i, entity in enumerate(st.session_state.entities):
         entity_data = {"type": entity["type"], "chain_id": entity["chain_id"]}
 
@@ -478,7 +481,14 @@ with title_cols[1]:
 st.text_input(
     "Entity Name (Optional)", key="entity_name", placeholder="e.g., Test Complex"
 )
-
+st.number_input(
+    "How many structure samples you want to get?",
+    min_value=1,
+    max_value=5,
+    value=1,
+    step=1,
+    key="diffusion_samples",
+)
 # --- Example Dialog Logic ---
 if st.session_state.get("show_examples_dialog", False):
     st.dialog("Select an Example")
