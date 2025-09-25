@@ -14,7 +14,20 @@ SO, download and install PyMOL from the [official website](https://pymol.org/).
 
 ---
 
-### 2. Obtain API Tokens
+### 2. Run the Plugin
+
+You can directly run the following command in >PyMOL
+
+```bash
+run https://raw.githubusercontent.com/ivandon15/PymolFold/main/run_plugin.py
+```
+
+If you see the following, installation was successful:  
+<img src="./img/install.png" width="300">
+
+---
+
+### 3. Obtain API Tokens
 
 PymolFold utilizes APIs from ESM3 and NVIDIA Boltz2.  
 You need to obtain API tokens from both:
@@ -28,53 +41,24 @@ After obtaining your tokens, set them as environment variables:
 Both must be **uppercase** and contain underscores.
 
 **How to set environment variables:**
+Again, in >PyMOL, you can execute following command step by step
+```python
+import os
+print(os.environ["ESM_API_TOKEN"])
+print(os.environ["NVCF_API_KEY"]) # if error occurs, it means you haven't set the key right
 
-**Windows:**
-1. Press `Win + S` and search for "Environment Variables".
-2. Select "Edit the system environment variables".
-3. In the System Properties window, go to "Advanced" → "Environment Variables".
-4. Add or edit variables in "System variables" or "User variables".
-   - Example:
-     - Variable name: `MY_ENV`
-     - Variable value: `hello`
-5. (Windows User pay attention): In case of some strange error occurs, you also need set an extra variables `PYTHONUTF8` and value set to `1`.
-6. Save and close.
+set_api_key ESM_API_TOKEN [, your_esm_api_key]
+set_api_key NVCF_API_KEY [, your_nvcf_api_key]
 
-**Mac:**
-1. Press `Command + Space`, type "terminal", and open Terminal.
-2. Edit your shell config:
-   ```bash
-   vim ~/.zshrc
-   ```
-3. Add your variable (example, replace with your actual token):
-   ```bash
-   export MY_ENV=hello
-   ```
-4. Save and exit Vim. (Ask ChatGPT if you duno how to do this)
-5. Activate the environment variable:
-   ```bash
-   source ~/.zshrc
-   ```
-
----
-
-### 3. Run the Plugin
-
-Once PyMOL and your API tokens are ready, download the `run_plugin.py` file from this project.  
-Open PyMOL and enter the full path to `run_plugin.py`:
-
-```bash
-run path_to/run_plugin.py
+print(os.environ["ESM_API_TOKEN"]) # it should print out what you just set
+print(os.environ["NVCF_API_KEY"])
 ```
-
-If you see the following, installation was successful:  
-<img src="./img/install.png" width="300">
 
 ---
 
 ### 4. How to Use
 
-PymolFold provides several features: `esm3`, `boltz2`, and `color_plddt`.
+PymolFold provides several features: `esm3`, `boltz2`, `color_plddt` and `pxmeter_align`.
 
 #### 1. Predict Monomer Protein Structure
 
@@ -123,13 +107,9 @@ We utilized [PXMeter](https://github.com/bytedance/PXMeter) to evaluate the diff
 
 But how to use in PyMolFold?
 ```python
-pxmeter_align full_path_to/real_struct.cif,full_path_to/predict_struct.cif 
+pxmeter_align obj_real_structure_name, obj_pred_structure_name
 ```
-Windows users PAY ATTENTION, make sure there is no double quotes around the path.
-
 It takes around 20s to loading when you first time using this method.
-
-Unfortunately (again), we haven't fix out how to get the structure path from pymol object, so you guys have to manually provide them. Besides, only cif format is supported now.
 
 After running the script above, you will get the metrics in `csv` and `png` format under the folder you setted (if not set, it will generate in the root path). You can use the exmaple files under `pymolfold/example/`, and the results should be exactly the same as `pymolfold/example/metrics`.
 
@@ -137,7 +117,7 @@ After running the script above, you will get the metrics in `csv` and `png` form
 
 ## Others
 **Version**
-Current version is 0.2.5, and if you are interesting in the source code, you can install pymolfold directly by `pip install pymolfold==0.2.5`.
+Current version is 0.2.7, and if you are interesting in the source code, you can install pymolfold directly by `pip install pymolfold==0.2.7`.
 
 **Info**  
 The PymolFold service is running on a A5000 instance (cost $100 a week), and the sequence length is limited to 1000aa.
