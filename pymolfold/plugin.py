@@ -122,7 +122,7 @@ def set_base_url(url):
 def set_api_key(key_name, key_value):
     """
     Set API key in environment and .env file.
-    Usage: set_apikey ESM_API_TOKEN your_token_value
+    Usage: set_api_key ESM_API_TOKEN your_token_value
     """
     import os
     from dotenv import set_key, find_dotenv
