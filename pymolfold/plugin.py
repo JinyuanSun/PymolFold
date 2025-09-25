@@ -119,6 +119,25 @@ def set_base_url(url):
     BASE_URL = url
 
 
+def set_api_key(key_name, key_value):
+    """
+    Set API key in environment and .env file.
+    Usage: set_apikey ESM_API_TOKEN your_token_value
+    """
+    import os
+    from dotenv import set_key, find_dotenv
+
+    os.environ[key_name] = key_value
+    env_path = find_dotenv()
+    if env_path:
+        set_key(env_path, key_name, key_value)
+    else:
+        # If .env doesn't exist, create one
+        with open(".env", "a") as f:
+            f.write(f"{key_name}={key_value}\n")
+    print(f"Set {key_name} in environment and .env file.")
+
+
 ########## Server ##########
 def init_boltz2_gui():
     """Main function called by PyMOL to initialize the plugin."""
@@ -390,7 +409,7 @@ def pxmeter_align(ref_cif: str, model_cif: str, verbose: bool = True) -> dict:
     out_dir = os.path.join(ABS_PATH, "pxmeter_results")
     os.makedirs(out_dir, exist_ok=True)
     # If you have a visualization util, uncomment:
-    # utils.visualize_pxmeter_metrics(json_dict, output_dir=out_dir)
+    utils.visualize_pxmeter_metrics(json_dict, output_dir=out_dir)
 
     if verbose:
         import json
@@ -428,10 +447,15 @@ def __init_plugin__(app=None):
 
     This function is called by PyMOL when the plugin is loaded.
     """
+    import dotenv
+
+    dotenv.load_dotenv(dotenv.find_dotenv())
+
     pymol_cmd.extend("boltz2", init_boltz2_gui)
     pymol_cmd.extend("esm3", query_esm3)
     pymol_cmd.extend("set_workdir", set_workdir)
     pymol_cmd.extend("set_base_url", set_base_url)
+    pymol_cmd.extend("set_api_key", set_api_key)
 
     pymol_cmd.extend("color_plddt", utils.color_plddt)
     pymol_cmd.extend("pxmeter_align", pxmeter_align)
