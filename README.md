@@ -117,7 +117,7 @@ After running the script above, you will get the metrics in `csv` and `png` form
 
 ## Others
 **Version**
-Current version is 0.2.6, and if you are interesting in the source code, you can install pymolfold directly by `pip install pymolfold==0.2.6`.
+Current version is 0.2.7, and if you are interesting in the source code, you can install pymolfold directly by `pip install pymolfold==0.2.7`.
 
 **Info**  
 The PymolFold service is running on a A5000 instance (cost $100 a week), and the sequence length is limited to 1000aa.

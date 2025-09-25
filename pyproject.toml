@@ -29,7 +29,7 @@ exclude_lines = [
 
 [project]
 name = "pymolfold"
-version = "0.2.6"
+version = "0.2.7"
 description = "Protein structure prediction in PyMOL"
 readme = "README.md"
 authors = [
