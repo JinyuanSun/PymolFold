@@ -16,3 +16,5 @@ test.ipynb
 .coverage
 *.pkl
 *.ipynb
+
+pxmeter_results/
