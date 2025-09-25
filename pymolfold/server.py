@@ -48,7 +48,7 @@ async def run_boltz2_prediction(payload: Payload):
             affinity_pic50 = (
                 result.get("affinities", {})
                 .get(affinity_target_id, {})
-                .get("affinity_pic50", [])[i]
+                .get("affinity_pic50", [])[0]
                 if affinity_target_id
                 else None
             )
