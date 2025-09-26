@@ -30,7 +30,7 @@ async def run_boltz2_prediction(payload: Payload):
     try:
         predictor = Boltz2Predictor()
         boltz_json, name, affinity_target_id, diffusion_samples = (
-            predictor.convert_to_boltz_json(payload.sub_data)
+            await predictor.convert_to_boltz_json(payload.sub_data)
         )
 
         result = await predictor.predict(
