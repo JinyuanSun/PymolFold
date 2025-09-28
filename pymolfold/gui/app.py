@@ -241,8 +241,12 @@ def render_protein_card(entity, index):
         )
 
         cols = st.columns([2, 2, 6])
-        # cols[0].button("+ Add MSA", key=f"msa_{index}")
         cols[0].toggle(
+            "Add MSA",
+            key=f"msa_{index}",
+            help="Whether to add a multiple sequence alignment",
+        )
+        cols[1].toggle(
             "Cyclic",
             key=f"cyc_prot_{index}",
             help="Whether the polymer forms a cyclic structure",
@@ -355,6 +359,7 @@ def gather_submission_data():
 
         if entity["type"] == "Protein":
             entity_data["sequence"] = st.session_state.get(f"seq_prot_{i}", "")
+            entity_data["msa"] = st.session_state.get(f"msa_{i}", False)
             entity_data["cyclic"] = st.session_state.get(f"cyc_prot_{i}", False)
             mods = []
             for mod_i in range(len(entity.get("modifications", []))):
