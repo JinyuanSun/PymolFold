@@ -3,7 +3,8 @@ import sys
 
 
 def ensure_package(pkg_name, version=None):
-    import importlib.util, subprocess
+    import importlib.util
+    import subprocess
 
     module_name = pkg_name
     if importlib.util.find_spec(module_name) is None:

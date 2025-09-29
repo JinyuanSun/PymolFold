@@ -215,9 +215,9 @@ def query_esm3(
                 plddt = utils.cal_plddt(pdb_string)
                 print(f"Structure saved in {first_file}.")
                 print("=" * 40)
-                print(f"    pLDDT: {plddt:.2f}")
+                print(f"    pLDDT: {plddt: .2f}")
                 print("=" * 40)
-            except:
+            except Exception:
                 print("Could not calculate pLDDT score")
         else:
             print("No structures were generated")

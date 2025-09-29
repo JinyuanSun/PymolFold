@@ -1,4 +1,7 @@
-import re, os, json, requests
+import re
+import os
+import json
+import requests
 import streamlit as st
 from rdkit import Chem
 
@@ -112,7 +115,7 @@ def check_SMILES(s: str) -> bool:
     try:
         if Chem.MolFromSmiles(s) is None:
             return False
-    except:
+    except Exception:
         return False
     return True
 
@@ -498,7 +501,7 @@ st.number_input(
 if st.session_state.get("show_examples_dialog", False):
     st.dialog("Select an Example")
     formatted_options = [
-        f"**{ex['title']}**\n```\n{ex['description']}\n```" for ex in EXAMPLES
+        f"**{ex['title']}**\n{repr(ex['description'])}" for ex in EXAMPLES
     ]
     selected_example_str = st.radio(
         "Select an example from the list:", formatted_options, key="example_choice"

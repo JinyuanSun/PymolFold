@@ -98,7 +98,7 @@ def color_plddt(selection="all"):
         pymol_cmd.select(
             "medium_lddt", f"({selection}) and ((b <70 and b >50) or (b=50))"
         )
-        pymol_cmd.select("low_lddt", f"({selection}) and ((b <50 and b >0 ) or (b=0))")
+        pymol_cmd.select("low_lddt", f"({selection}) and ((b <50 and b >0) or (b=0))")
     else:
         pymol_cmd.select("high_lddt", f"({selection}) and (b >.90 or b =.90)")
         pymol_cmd.select(
@@ -107,7 +107,7 @@ def color_plddt(selection="all"):
         pymol_cmd.select(
             "medium_lddt", f"({selection}) and ((b <.70 and b >.50) or (b=.50))"
         )
-        pymol_cmd.select("low_lddt", f"({selection}) and ((b <.50 and b >0 ) or (b=0))")
+        pymol_cmd.select("low_lddt", f"({selection}) and ((b <.50 and b > 0) or (b=0))")
 
     pymol_cmd.delete("test_b_scale")
 
@@ -289,19 +289,21 @@ def visualize_pxmeter_metrics(data: dict, output_dir: str = "metrics_output"):
             ax=ax,
         )
         ax.set_title(
-            f"Overall Complex and Per-Chain lDDT Scores for {entry_id}", fontsize=20, pad=20
+            f"Overall Complex and Per-Chain lDDT Scores for {entry_id}",
+            fontsize=20,
+            pad=20,
         )
         ax.set_ylabel("lDDT Score", fontsize=16, labelpad=15)
         ax.set_xlabel("Entity", fontsize=16, labelpad=15)
         ax.set_ylim(0, 1.05)
-        ax.tick_params(axis='both', which='major', labelsize=14)
-        ax.grid(which='major', linestyle='--', linewidth='0.7')
+        ax.tick_params(axis="both", which="major", labelsize=14)
+        ax.grid(which="major", linestyle="--", linewidth="0.7")
         for spine in ax.spines.values():
-            spine.set_edgecolor('black')
+            spine.set_edgecolor("black")
             spine.set_linewidth(1.2)
         for p in ax.patches:
             ax.annotate(
-                f"{p.get_height():.3f}",
+                f"{p.get_height(): .3f}",
                 (p.get_x() + p.get_width() / 2.0, p.get_height()),
                 ha="center",
                 va="center",
@@ -361,20 +363,22 @@ def visualize_pxmeter_metrics(data: dict, output_dir: str = "metrics_output"):
             mask=mask,
             cbar_kws={"label": f"{metric} Score"},
             ax=axes[i],
-            annot_kws={"fontsize": 13}
+            annot_kws={"fontsize": 13},
         )
         axes[i].set_title(title, fontsize=18, pad=15)
         axes[i].set_xlabel("Chain ID", fontsize=15, labelpad=10)
         axes[i].set_ylabel("Chain ID", fontsize=15, labelpad=10)
-        axes[i].tick_params(axis='both', which='major', labelsize=13)
+        axes[i].tick_params(axis="both", which="major", labelsize=13)
         for spine in axes[i].spines.values():
-            spine.set_edgecolor('black')
+            spine.set_edgecolor("black")
             spine.set_linewidth(1.2)
 
     for j in range(len(heatmap_matrices), 6):
         fig.delaxes(axes[j])
 
-    fig.suptitle(f"Interface Metrics Heatmaps for {entry_id}", fontsize=22, fontweight='bold')
+    fig.suptitle(
+        f"Interface Metrics Heatmaps for {entry_id}", fontsize=22, fontweight="bold"
+    )
     plt.tight_layout(rect=[0, 0, 1, 0.97])
     plot_path = Path(output_dir) / f"{entry_id}_interface_metrics_grid.png"
     plt.savefig(plot_path, dpi=300, bbox_inches="tight")

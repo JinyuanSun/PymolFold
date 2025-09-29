@@ -49,7 +49,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Bio-Informatics",
 ]
 keywords = ["protein", "structure prediction", "PyMOL", "bioinformatics", "protein folding"]
-requires-pyt  hon = ">=3.7"
+requires-python = ">=3.7"
 dependencies = [
     "requests>=2.25.0",
     "numpy>=1.19.0",
