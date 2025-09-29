@@ -14,7 +14,9 @@ test.ipynb
 .vscode
 .pytest_cache
 .coverage
+.flake8
+.pre-commit-config.yaml
 *.pkl
 *.ipynb
 
-pxmeter_results/
+case_study/

@@ -192,7 +192,7 @@ def visualize_pxmeter_metrics(data: dict, output_dir: str = "metrics_output"):
     entry_id = data.get("entry_id", "unknown_entry")
     print(f"Visualizing Entry ID: {entry_id}")
 
-    # --- 1. Enhanced Data Preparation (No changes here) ---
+    # --- 1. Enhanced Data Preparation ---
     metrics_list = []
     complex_metrics = data.get("complex", {})
     metrics_list.append(
@@ -255,17 +255,17 @@ def visualize_pxmeter_metrics(data: dict, output_dir: str = "metrics_output"):
                     }
                 )
 
-    # --- 2. Create and Save Comprehensive CSV (No changes here) ---
+    # --- 2. Create and Save Comprehensive CSV ---
     df = pd.DataFrame(metrics_list)
     df.dropna(subset=["Value"], inplace=True)
     csv_path = Path(output_dir) / f"{entry_id}_summary_metrics.csv"
     df.to_csv(csv_path, index=False)
     print(f"✓ Comprehensive summary metrics saved to: {csv_path}")
 
-    # --- 3. Generate and Save Visualizations (Plots are modified) ---
-    sns.set_theme(style="white")  # Using white style for better heatmap contrast
+    # --- 3. Set publication-style formatting ---
+    sns.set_theme(style="whitegrid", context="paper", font_scale=1.5)
 
-    # Plot 1: Combined Complex and Chain lDDT Scores (No changes here)
+    # Plot 1: Combined Complex and Chain lDDT Scores (bar chart, publication style)
     lddt_df = df[
         (df["Metric"] == "lDDT") & (df["Level"].isin(["Complex", "Chain"]))
     ].copy()
@@ -274,41 +274,51 @@ def visualize_pxmeter_metrics(data: dict, output_dir: str = "metrics_output"):
             lambda x: f"0_{x}" if x == "Overall" else f"1_{x}"
         )
         lddt_df.sort_values("sort_key", inplace=True)
-        plt.figure(figsize=(10, 6))
-        ax = sns.barplot(
+        fig, ax = plt.subplots(figsize=(10, 6))
+        bar_palette = {"Overall": "#8dd3c7"}
+        for chain in lddt_df["Chain/Interface"]:
+            if chain not in bar_palette:
+                bar_palette[chain] = "#80b1d3"
+        sns.barplot(
             x="Chain/Interface",
             y="Value",
             data=lddt_df,
-            palette="coolwarm",
+            palette=bar_palette,
             hue="Chain/Interface",
             dodge=False,
+            ax=ax,
         )
         ax.set_title(
-            f"Overall Complex and Per-Chain lDDT Scores for {entry_id}", fontsize=16
+            f"Overall Complex and Per-Chain lDDT Scores for {entry_id}", fontsize=20, pad=20
         )
-        ax.set_ylabel("lDDT Score", fontsize=12)
-        ax.set_xlabel("Entity", fontsize=12)
+        ax.set_ylabel("lDDT Score", fontsize=16, labelpad=15)
+        ax.set_xlabel("Entity", fontsize=16, labelpad=15)
         ax.set_ylim(0, 1.05)
+        ax.tick_params(axis='both', which='major', labelsize=14)
+        ax.grid(which='major', linestyle='--', linewidth='0.7')
+        for spine in ax.spines.values():
+            spine.set_edgecolor('black')
+            spine.set_linewidth(1.2)
         for p in ax.patches:
             ax.annotate(
                 f"{p.get_height():.3f}",
                 (p.get_x() + p.get_width() / 2.0, p.get_height()),
                 ha="center",
                 va="center",
-                fontsize=11,
+                fontsize=13,
                 color="black",
                 xytext=(0, 5),
                 textcoords="offset points",
             )
         plt.legend([], [], frameon=False)
+        plt.tight_layout()
         plot_path = Path(output_dir) / f"{entry_id}_combined_lddt.png"
-        plt.savefig(plot_path, bbox_inches="tight")
+        plt.savefig(plot_path, dpi=300, bbox_inches="tight")
         plt.close()
         print(f"✓ Combined lDDT plot saved to: {plot_path}")
 
-    # --- Plot 2: Interface Scores as N x N Heatmaps (【MODIFIED SECTION】) ---
+    # --- Plot 2: Interface Scores as N x N Heatmaps (3x2 grid, publication style) ---
     interface_df = df[df["Level"] == "Interface"]
-    # Get all unique chain IDs involved in the complex
     unique_chains = sorted(list(data.get("chain", {}).keys()))
 
     if not unique_chains:
@@ -322,11 +332,9 @@ def visualize_pxmeter_metrics(data: dict, output_dir: str = "metrics_output"):
     for metric in metrics_to_plot:
         metric_df = interface_df[interface_df["Metric"] == metric]
         if not metric_df.empty:
-            # Create an empty N x N DataFrame, initialized with NaN
             heatmap_matrix = pd.DataFrame(
                 index=unique_chains, columns=unique_chains, dtype=float
             )
-            # Populate the matrix symmetrically
             for _, row in metric_df.iterrows():
                 chains = row["Chain/Interface"].split(",")
                 if len(chains) == 2:
@@ -337,37 +345,38 @@ def visualize_pxmeter_metrics(data: dict, output_dir: str = "metrics_output"):
             heatmap_matrices.append(heatmap_matrix)
             titles.append(f"Interface {metric}")
 
-    # Plot all heatmaps in a 3x2 grid
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-
     fig, axes = plt.subplots(3, 2, figsize=(16, 18))
     axes = axes.flatten()
 
+    # Publication-style color, font, border
     for i, (matrix, title) in enumerate(zip(heatmap_matrices, titles)):
-        cmap = "viridis_r" if "RMSD" in title else "viridis"
+        metric = metrics_to_plot[i]
         mask = matrix.isnull()
         sns.heatmap(
             matrix,
             annot=True,
             fmt=".3f",
-            cmap=cmap,
-            linewidths=0.5,
+            cmap="viridis",
+            linewidths=0.7,
             mask=mask,
-            cbar_kws={"label": f"{metrics_to_plot[i]} Score"},
+            cbar_kws={"label": f"{metric} Score"},
             ax=axes[i],
+            annot_kws={"fontsize": 13}
         )
-        axes[i].set_title(title, fontsize=16)
-        axes[i].set_xlabel("Chain ID", fontsize=12)
-        axes[i].set_ylabel("Chain ID", fontsize=12)
+        axes[i].set_title(title, fontsize=18, pad=15)
+        axes[i].set_xlabel("Chain ID", fontsize=15, labelpad=10)
+        axes[i].set_ylabel("Chain ID", fontsize=15, labelpad=10)
+        axes[i].tick_params(axis='both', which='major', labelsize=13)
+        for spine in axes[i].spines.values():
+            spine.set_edgecolor('black')
+            spine.set_linewidth(1.2)
 
-    # Hide any unused subplots if less than 6
     for j in range(len(heatmap_matrices), 6):
         fig.delaxes(axes[j])
 
-    fig.suptitle(f"Interface Metrics Heatmaps for {entry_id}", fontsize=20)
+    fig.suptitle(f"Interface Metrics Heatmaps for {entry_id}", fontsize=22, fontweight='bold')
     plt.tight_layout(rect=[0, 0, 1, 0.97])
     plot_path = Path(output_dir) / f"{entry_id}_interface_metrics_grid.png"
-    plt.savefig(plot_path, bbox_inches="tight")
+    plt.savefig(plot_path, dpi=300, bbox_inches="tight")
     plt.close()
     print(f"✓ All interface metric heatmaps saved to: {plot_path}")
