@@ -19,7 +19,7 @@ SO, download and install PyMOL from the [official website](https://pymol.org/).
 You can directly run the following command in >PyMOL
 
 ```bash
-run https://raw.githubusercontent.com/ivandon15/PymolFold/main/run_plugin.py
+run https://raw.githubusercontent.com/JinyuanSun/PymolFold/main/run_plugin.py
 ```
 
 If you see the following, installation was successful:  
