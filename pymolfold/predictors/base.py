@@ -50,7 +50,7 @@ class StructurePredictor(ABC):
                 # Clean filename and ensure .cif extension
                 initial_name = self._clean_filename(struct["source"])
             else:
-                initial_name += f"_{i+1}"
+                initial_name += f"_{i + 1}"
             suffix = ".cif" if struct["structure"].startswith("data_") else ".pdb"
             if not initial_name.lower().endswith(suffix):
                 initial_name += suffix
@@ -60,7 +60,7 @@ class StructurePredictor(ABC):
             counter = 1
             while path.exists():
                 stem = Path(initial_name).stem
-                if stem.endswith(f"_{counter-1}"):
+                if stem.endswith(f"_{counter - 1}"):
                     stem = stem.rsplit("_", 1)[0]
                 path = self.workdir / f"{stem}_{counter}{suffix}"
                 counter += 1

@@ -1,4 +1,7 @@
-import re, os, json, requests
+import re
+import os
+import json
+import requests
 import streamlit as st
 from rdkit import Chem
 
@@ -112,7 +115,7 @@ def check_SMILES(s: str) -> bool:
     try:
         if Chem.MolFromSmiles(s) is None:
             return False
-    except:
+    except Exception:
         return False
     return True
 
@@ -241,8 +244,12 @@ def render_protein_card(entity, index):
         )
 
         cols = st.columns([2, 2, 6])
-        # cols[0].button("+ Add MSA", key=f"msa_{index}")
         cols[0].toggle(
+            "Add MSA",
+            key=f"msa_{index}",
+            help="Whether to add a multiple sequence alignment",
+        )
+        cols[1].toggle(
             "Cyclic",
             key=f"cyc_prot_{index}",
             help="Whether the polymer forms a cyclic structure",
@@ -355,6 +362,7 @@ def gather_submission_data():
 
         if entity["type"] == "Protein":
             entity_data["sequence"] = st.session_state.get(f"seq_prot_{i}", "")
+            entity_data["msa"] = st.session_state.get(f"msa_{i}", False)
             entity_data["cyclic"] = st.session_state.get(f"cyc_prot_{i}", False)
             mods = []
             for mod_i in range(len(entity.get("modifications", []))):
@@ -493,7 +501,7 @@ st.number_input(
 if st.session_state.get("show_examples_dialog", False):
     st.dialog("Select an Example")
     formatted_options = [
-        f"**{ex['title']}**\n```\n{ex['description']}\n```" for ex in EXAMPLES
+        f"**{ex['title']}**\n{repr(ex['description'])}" for ex in EXAMPLES
     ]
     selected_example_str = st.radio(
         "Select an example from the list:", formatted_options, key="example_choice"
@@ -589,7 +597,5 @@ if st.session_state.get("final_data") and st.checkbox("Show submission JSON"):
     st.json(st.session_state.final_data)
 
 st.caption(
-    """
-This page is a non-commercial reproduction of [Boltz2 on NVIDIA Build](https://build.nvidia.com/mit/boltz2). 
-"""
+    """This page is a non-commercial reproduction of [Boltz2 on NVIDIA Build](https://build.nvidia.com/mit/boltz2)."""
 )

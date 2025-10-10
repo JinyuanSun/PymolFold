@@ -30,7 +30,7 @@ async def run_boltz2_prediction(payload: Payload):
     try:
         predictor = Boltz2Predictor()
         boltz_json, name, affinity_target_id, diffusion_samples = (
-            predictor.convert_to_boltz_json(payload.sub_data)
+            await predictor.convert_to_boltz_json(payload.sub_data)
         )
 
         result = await predictor.predict(
@@ -54,10 +54,10 @@ async def run_boltz2_prediction(payload: Payload):
             )
             print(f"Structure saved in {file_path}.")
             print("=" * 40)
-            print(f"    pLDDT: {plddt:.2f}")
+            print(f"    pLDDT: {plddt: .2f}")
             print("=" * 40)
             if affinity_target_id:
-                print(f"    pic50 with {affinity_target_id}: {affinity_pic50:.3f}")
+                print(f"    pic50 with {affinity_target_id}: {affinity_pic50: .3f}")
                 print("=" * 40)
 
         return {

@@ -88,7 +88,11 @@ boltz2
 You can run the provided example:  
 <img src="./img/boltzexample.png" width="500">
 
-When using CCD code, you can check all the existed CCDs under `pymolfold/gui/ccd_keys.json`
+When using CCD code, you can check all the existed CCDs under `pymolfold/gui/ccd_keys.json`.
+
+If you want to predict a head-tail amide bonded cyclic peptide, you may set `cyclic` on.
+
+If you want to use MSA as an auxiliary information, you may set `Add MSA` on. It will automatically query colab design msa search via NVIDIA API.
 
 After clicking **Run** on the web page, wait about 6 seconds (depending on protein size), and the structure will appear in PyMOL!
 
@@ -117,7 +121,7 @@ After running the script above, you will get the metrics in `csv` and `png` form
 
 ## Others
 **Version**
-Current version is 0.2.7, and if you are interesting in the source code, you can install pymolfold directly by `pip install pymolfold==0.2.7`.
+Current version is 0.2.9, and if you are interesting in the source code, you can install pymolfold directly by `pip install pymolfold==0.2.9`.
 
 **Info**  
 The PymolFold service is running on a A5000 instance (cost $100 a week), and the sequence length is limited to 1000aa.

@@ -1,3 +1,4 @@
+import json
 import os
 import asyncio
 from typing import Dict, Any, Optional
@@ -13,7 +14,8 @@ class Boltz2Predictor(StructurePredictor):
     """Structure predictor using Boltz2"""
 
     STATUS_URL = "https://api.nvcf.nvidia.com/v2/nvcf/pexec/status/{task_id}"
-    PUBLIC_URL = "https://health.api.nvidia.com/v1/biology/mit/boltz2/predict"
+    BOLTZ_URL = "https://health.api.nvidia.com/v1/biology/mit/boltz2/predict"
+    MSA_URL = "https://health.api.nvidia.com/v1/biology/colabfold/msa-search/predict"
 
     def __init__(self, workdir: Optional[str] = None):
         """Initialize Boltz2 predictor
@@ -28,7 +30,20 @@ class Boltz2Predictor(StructurePredictor):
                 "Please set NVCF_API_KEY（export NVCF_API_KEY=...）before using Boltz2."
             )
 
-    def convert_to_boltz_json(self, gui_data):
+    async def get_colab_msa(self, sequence: str) -> str:
+        data = {
+            "sequence": sequence,
+            "e_value": 0.0001,
+            "iterations": 1,
+            "databases": ["Uniref30_2302"],
+            "output_alignment_formats": ["a3m"],
+        }
+
+        print("Making MSA request...")
+        result = await self._make_nvcf_call(function_url=self.MSA_URL, data=data)
+        return result
+
+    async def convert_to_boltz_json(self, gui_data):
         """
         Converts the final_data list from the Streamlit app into the Boltz JSON format.
 
@@ -74,15 +89,22 @@ class Boltz2Predictor(StructurePredictor):
                     "modifications": entity.get("modifications", []),
                 }
                 if entity_type == "Protein":
-                    # Create a placeholder MSA as required by the Boltz format
-                    polymer["msa"] = {
-                        "uniref90": {
-                            "a3m": {
-                                "alignment": f">chain_{chain_id}\n{sequence}",
-                                "format": "a3m",
+                    if entity.get("msa", False):
+                        # Here we would normally generate or fetch an MSA.
+                        # For simplicity, we'll create a dummy MSA entry.
+                        # In a real application, you might integrate with an MSA generation tool.
+                        msa_result = await self.get_colab_msa(sequence)
+                        polymer["msa"] = msa_result["alignments"]
+                    else:
+                        # Create a placeholder MSA as required by the Boltz format
+                        polymer["msa"] = {
+                            "uniref90": {
+                                "a3m": {
+                                    "alignment": f">chain_{chain_id}\n{sequence}",
+                                    "format": "a3m",
+                                }
                             }
                         }
-                    }
                 boltz_json["polymers"].append(polymer)
 
             # Handle Ligands
@@ -137,7 +159,7 @@ class Boltz2Predictor(StructurePredictor):
 
         # instead of asyncio.run, we make the predict function async and call await here
         result = await self._make_nvcf_call(
-            function_url=self.PUBLIC_URL,
+            function_url=self.BOLTZ_URL,
             data=boltz_json,
             poll_seconds=kwargs.get("poll_seconds", 300),
             timeout_seconds=kwargs.get("timeout_seconds", 400),
