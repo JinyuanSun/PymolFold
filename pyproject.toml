@@ -29,7 +29,7 @@ exclude_lines = [
 
 [project]
 name = "pymolfold"
-version = "0.2.7"
+version = "0.2.9"
 description = "Protein structure prediction in PyMOL"
 readme = "README.md"
 authors = [
@@ -64,7 +64,8 @@ dependencies = [
     "esm==3.2.1",
     "torch>=2.0.0",
     "shadowpxmeter==0.0.3",
-    "seaborn==0.13.2"
+    "seaborn==0.13.2",
+    "python-dotenv==1.0.1"
 ]
 
 [project.urls]
@@ -79,3 +80,20 @@ pymolfold = "pymolfold.plugin:__init_plugin__"
 [tool.setuptools]
 packages = ["pymolfold"]
 package-dir = {"pymolfold" = "pymolfold"}
+
+[tool.black]
+line-length = 88
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
