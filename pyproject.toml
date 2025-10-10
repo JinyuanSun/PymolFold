@@ -69,10 +69,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/ivandon15/PymolFold"
-Documentation = "https://github.com/ivandon15/PymolFold#readme"
-Repository = "https://github.com/ivandon15/PymolFold.git"
-Issues = "https://github.com/ivandon15/PymolFold/issues"
+Homepage = "https://github.com/JinyuanSun/PymolFold"
+Documentation = "https://github.com/JinyuanSun/PymolFold#readme"
+Repository = "https://github.com/JinyuanSun/PymolFold.git"
+Issues = "https://github.com/JinyuanSun/PymolFold/issues"
 
 [project.entry-points."pymol.plugins"]
 pymolfold = "pymolfold.plugin:__init_plugin__"
