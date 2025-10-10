@@ -597,7 +597,5 @@ if st.session_state.get("final_data") and st.checkbox("Show submission JSON"):
     st.json(st.session_state.final_data)
 
 st.caption(
-    """
-This page is a non-commercial reproduction of [Boltz2 on NVIDIA Build](https://build.nvidia.com/mit/boltz2). 
-"""
+    """This page is a non-commercial reproduction of [Boltz2 on NVIDIA Build](https://build.nvidia.com/mit/boltz2)."""
 )

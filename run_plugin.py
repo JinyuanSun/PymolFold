@@ -8,7 +8,7 @@ def ensure_package(pkg_name, version=None):
 
     module_name = pkg_name
     if importlib.util.find_spec(module_name) is None:
-        print(f"Installing {pkg_name}{'=='+version if version else ''} ...")
+        print(f"Installing {pkg_name}{'==' + version if version else ''} ...")
         subprocess.check_call(
             [
                 sys.executable,
@@ -20,7 +20,7 @@ def ensure_package(pkg_name, version=None):
         )
 
 
-ensure_package("pymolfold", "0.2.8")
+ensure_package("pymolfold", "0.2.9")
 
 import pymolfold
 
