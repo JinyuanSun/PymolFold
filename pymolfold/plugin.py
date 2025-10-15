@@ -122,7 +122,7 @@ def set_base_url(url):
 def set_api_key(key_name, key_value):
     """
     Set API key in environment and .env file.
-    Usage: set_apikey ESM_API_TOKEN your_token_value
+    Usage: set_api_key ESM_API_TOKEN your_token_value
     """
     import os
     from dotenv import set_key, find_dotenv
@@ -254,9 +254,9 @@ def query_am_hegelab(name):
 
 
 def fetch_af(uniprot_id):
-    url = f"https://alphafold.ebi.ac.uk/files/AF-{uniprot_id}-F1-model_v4.pdb"
+    url = f"https://alphafold.ebi.ac.uk/files/AF-{uniprot_id}-F1-model_v6.pdb"
     pymol_cmd.do(f"load {url}")
-    pymol_cmd.do(f"color_plddt AF-{uniprot_id}-F1-model_v4")
+    pymol_cmd.do(f"color_plddt AF-{uniprot_id}-F1-model_v6")
 
 
 def _infer_object_name_from_path(path: str) -> str:

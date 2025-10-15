@@ -100,7 +100,7 @@ class Boltz2Predictor(StructurePredictor):
                         polymer["msa"] = {
                             "uniref90": {
                                 "a3m": {
-                                    "alignment": f">chain_{chain_id}\n{sequence}\n",
+                                    "alignment": f">chain_{chain_id}\n{sequence}",
                                     "format": "a3m",
                                 }
                             }
