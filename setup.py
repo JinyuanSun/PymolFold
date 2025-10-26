@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pymolfold",
-    version="0.2.9",
+    version="0.2.10",
     packages=find_packages(),
     install_requires=[
         "requests>=2.25.0",
