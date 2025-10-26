@@ -258,11 +258,11 @@ def query_boltz_monomer(sequence: str, name: str = None):
 
         # Get MSA and add it to the polymer
         print("Fetching MSA from ColabFold...")
-        
+
         async def run_prediction():
             msa_result = await predictor.get_colab_msa(sequence)
             boltz_json["polymers"][0]["msa"] = msa_result["alignments"]
-            
+
             print("Running Boltz2 prediction with MSA...")
             result = await predictor.predict(boltz_json)
             return result
