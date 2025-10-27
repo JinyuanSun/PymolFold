@@ -2,9 +2,19 @@
 
 from setuptools import setup, find_packages
 
+import re
+import os
+
+
+def get_version():
+    version_py = os.path.join(os.path.dirname(__file__), "pymolfold", "version.py")
+    with open(version_py) as f:
+        return re.search(r"__version__ = ['\"]([^'\"]+)['\"]", f.read()).group(1)
+
+
 setup(
     name="pymolfold",
-    version="0.2.10",
+    version=get_version(),
     packages=find_packages(),
     install_requires=[
         "requests>=2.25.0",
