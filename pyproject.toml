@@ -29,14 +29,14 @@ exclude_lines = [
 
 [project]
 name = "pymolfold"
-version = "0.2.10"
+dynamic = ["version"]
 description = "Protein structure prediction in PyMOL"
 readme = "README.md"
 authors = [
-    { name = "Jinyuan Sun", email = "jinyuansun98@gmail.com" },
-    { name = "Yifan Deng", email = "dengyifan15@gmail.com" }
+    {name = "Jinyuan Sun", email = "jinyuansun98@gmail.com"},
+    {name = "Yifan Deng", email = "dengyifan15@gmail.com"},
 ]
-license = { file = "LICENSE" }
+license = {text = "MIT"}
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
@@ -73,6 +73,9 @@ Homepage = "https://github.com/JinyuanSun/PymolFold"
 Documentation = "https://github.com/JinyuanSun/PymolFold#readme"
 Repository = "https://github.com/JinyuanSun/PymolFold.git"
 Issues = "https://github.com/JinyuanSun/PymolFold/issues"
+
+[tool.setuptools.dynamic]
+version = {attr = "pymolfold.version.__version__"}
 
 [project.entry-points."pymol.plugins"]
 pymolfold = "pymolfold.plugin:__init_plugin__"
