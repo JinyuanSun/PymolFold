@@ -121,21 +121,25 @@ def set_base_url(url):
 
 def set_api_key(key_name, key_value):
     """
-    Set API key in environment and .env file.
+    Set API key in environment and .env file located in the current workdir.
     Usage: set_api_key ESM_API_TOKEN your_token_value
     """
     import os
-    from dotenv import set_key, find_dotenv
+    from dotenv import set_key
 
+    # Ensure the workdir exists
+    os.makedirs(ABS_PATH, exist_ok=True)
+
+    # Define the path to the .env file within the workdir
+    env_path = os.path.join(ABS_PATH, ".env")
+
+    # Set the environment variable for the current session
     os.environ[key_name] = key_value
-    env_path = find_dotenv()
-    if env_path:
-        set_key(env_path, key_name, key_value)
-    else:
-        # If .env doesn't exist, create one
-        with open(".env", "a") as f:
-            f.write(f"{key_name}={key_value}\n")
-    print(f"Set {key_name} in environment and .env file.")
+
+    # Save the key to the .env file for future sessions
+    set_key(env_path, key_name, key_value)
+
+    print(f"Set {key_name} in current session and saved to: {env_path}")
 
 
 ########## Server ##########
@@ -513,7 +517,11 @@ def __init_plugin__(app=None):
     """
     import dotenv
 
-    dotenv.load_dotenv(dotenv.find_dotenv())
+    # Load .env from the default workdir on startup
+    env_path = os.path.join(ABS_PATH, ".env")
+    if os.path.exists(env_path):
+        dotenv.load_dotenv(dotenv_path=env_path)
+        print(f"Loaded API keys from {env_path}")
 
     pymol_cmd.extend("boltz2", init_boltz2_gui)
     pymol_cmd.extend("bfold", query_boltz_monomer)
