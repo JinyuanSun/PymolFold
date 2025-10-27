@@ -58,7 +58,7 @@ print(os.environ["NVCF_API_KEY"])
 
 ### 4. How to Use
 
-PymolFold provides several features: `esm3`, `boltz2`, `color_plddt` and `pxmeter_align`.
+PymolFold provides several features: `esm3`, `bfold`, `boltz2`, `color_plddt` and `pxmeter_align`.
 
 #### 1. Predict Monomer Protein Structure
 
@@ -73,7 +73,27 @@ esm3 MKTVRQERLKSIVRILERSKEPVSGAQLAEELSVSRQVIVQDIAYLRSLGYNIVATPRGYVLAGG
 
 ---
 
-#### 2. Predict Complexes, DNA, RNA, or Ligand Structures
+#### 2. Predict Monomer Protein Structure with Boltz2 + MSA
+
+Use the `bfold` command for monomer folding with MSA support:
+
+```python
+bfold sequence [, name]
+# Example:
+bfold MKTVRQERLKSIVRILERSKEPVSGAQLAEELSVSRQVIVQDIAYLRSLGYNIVATPRGYVLAGG
+```
+
+This command:
+- Uses Boltz2 for structure prediction
+- Automatically fetches MSA from ColabFold via NVIDIA API
+- Runs directly without launching the Streamlit UI
+- Outputs results to your working directory (set with `set_workdir`)
+
+**Note:** This is specifically for monomer proteins. For complexes, DNA, RNA, or ligands, use the `boltz2` command below.
+
+---
+
+#### 3. Predict Complexes, DNA, RNA, or Ligand Structures
 
 For more complex predictions, use the `boltz2` command.  
 Due to the number of required inputs, a web interface is provided (inspired by [NVIDIA Boltz2](https://build.nvidia.com/mit/boltz2)).  
@@ -98,7 +118,7 @@ After clicking **Run** on the web page, wait about 6 seconds (depending on prote
 
 ---
 
-#### 3. View pLDDT Scores
+#### 4. View pLDDT Scores
 
 After prediction, enter the following to view pLDDT scores for the predicted structure:
 
@@ -106,7 +126,7 @@ After prediction, enter the following to view pLDDT scores for the predicted str
 color_plddt
 ```
 
-#### 4. How to evaluate the predicted results?
+#### 5. How to evaluate the predicted results?
 We utilized [PXMeter](https://github.com/bytedance/PXMeter) to evaluate the differences between predicted structures and reference structures. PXMeter(0.1.4) now only supports PPI analysis, and more details can be seen in their repo. But unfortunately, we copied the repo and refine it since the python version may conflict with the one of PyMOL.
 
 But how to use in PyMolFold?

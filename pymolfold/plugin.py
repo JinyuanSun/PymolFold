@@ -226,6 +226,70 @@ def query_esm3(
         print(f"Error during prediction: {str(e)}")
 
 
+def query_boltz_monomer(sequence: str, name: str = None):
+    """Predict protein structure using Boltz2 with MSA support
+
+    Args:
+        sequence: Amino acid sequence
+        name: Name for output files
+    """
+    import asyncio
+    from pymolfold.predictors import Boltz2Predictor
+
+    sequence = utils.clean_sequence(sequence)
+    if not name:
+        name = sequence[:3] + sequence[-3:]
+
+    predictor = Boltz2Predictor(workdir=ABS_PATH)
+
+    try:
+        # Create Boltz2 JSON payload for monomer with MSA
+        boltz_json = {
+            "polymers": [
+                {
+                    "id": "A",
+                    "molecule_type": "protein",
+                    "sequence": sequence,
+                    "cyclic": False,
+                    "modifications": [],
+                }
+            ]
+        }
+
+        # Get MSA and add it to the polymer
+        print("Fetching MSA from ColabFold...")
+
+        async def run_prediction():
+            msa_result = await predictor.get_colab_msa(sequence)
+            boltz_json["polymers"][0]["msa"] = msa_result["alignments"]
+
+            print("Running Boltz2 prediction with MSA...")
+            result = await predictor.predict(boltz_json)
+            return result
+
+        # Run the async function
+        result = asyncio.run(run_prediction())
+
+        saved_files = predictor.save_structures(result, name)
+        if saved_files:
+            first_file = saved_files[0]
+            pymol_cmd.load(str(first_file))
+
+            try:
+                plddt = result.get("complex_plddt_scores", [])[0]
+                print(f"Structure saved in {first_file}.")
+                print("=" * 40)
+                print(f"    pLDDT: {plddt: .2f}")
+                print("=" * 40)
+            except Exception:
+                print("Could not display pLDDT score")
+        else:
+            print("No structures were generated")
+
+    except Exception as e:
+        print(f"Error during prediction: {str(e)}")
+
+
 def query_am_hegelab(name):
     try:
         url = AM_HEGELAB_API + name
@@ -452,6 +516,7 @@ def __init_plugin__(app=None):
     dotenv.load_dotenv(dotenv.find_dotenv())
 
     pymol_cmd.extend("boltz2", init_boltz2_gui)
+    pymol_cmd.extend("bfold", query_boltz_monomer)
     pymol_cmd.extend("esm3", query_esm3)
     pymol_cmd.extend("set_workdir", set_workdir)
     pymol_cmd.extend("set_base_url", set_base_url)
