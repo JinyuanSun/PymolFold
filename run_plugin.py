@@ -20,7 +20,7 @@ def ensure_package(pkg_name, version=None):
         )
 
 
-ensure_package("pymolfold", "0.2.10")
+ensure_package("pymolfold", version="0.2.11")
 
 import pymolfold
 
