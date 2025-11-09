@@ -12,7 +12,7 @@ import subprocess
 import shutil
 from typing import Tuple
 
-from pymolfold.predictors import ESM3Predictor
+from pymolfold.predictors import ESM3Predictor, ESMFoldPredictor
 
 # Global settings
 OBJECT_FILENAME_MAP = {}
@@ -145,13 +145,15 @@ def set_api_key(key_name, key_value):
 ########## Server ##########
 def init_boltz2_gui():
     """Main function called by PyMOL to initialize the plugin."""
+    import webbrowser
+
     # Run the FastAPI server in a separate thread.
     # This is CRUCIAL because it doesn't block PyMOL's main thread.
     server_thread = threading.Thread(target=server.run_server)
     server_thread.daemon = True
     server_thread.start()
     # Give the server a moment to start
-    time.sleep(2)
+    # time.sleep(2)
 
     # Launch the Streamlit UI
     try:
@@ -170,10 +172,14 @@ def init_boltz2_gui():
                 return s.connect_ex(("localhost", port)) == 0
 
         if not is_port_in_use(8510):
-            subprocess.Popen([streamlit_path, "run", ui_path])
+            print("Starting Streamlit server...")
+            subprocess.Popen([streamlit_path, "run", ui_path, "--server.port", "8510"])
+            time.sleep(3)  # Give Streamlit a moment to start
         else:
             print("Streamlit is already running.")
+            webbrowser.open("http://localhost:8510")
 
+        # print("Opening Streamlit UI in browser...")
         # webbrowser.open('http://localhost:8510')
     except Exception as e:
         print(f"Could not launch Streamlit UI: {e}")
@@ -221,6 +227,47 @@ def query_esm3(
                 print("=" * 40)
                 print(f"    pLDDT: {plddt: .2f}")
                 print("=" * 40)
+            except Exception:
+                print("Could not calculate pLDDT score")
+        else:
+            print("No structures were generated")
+
+    except Exception as e:
+        print(f"Error during prediction: {str(e)}")
+
+
+def query_esmfold(
+    sequence: str,
+    name: str = None,
+):
+    """Predict protein structure using ESM-3
+
+    Args:
+        sequence: Amino acid sequence
+        name: Name for output files
+    """
+    st = time.time()
+    sequence = utils.clean_sequence(sequence)
+    if not name:
+        name = sequence[:3] + sequence[-3:]
+
+    predictor = ESMFoldPredictor(workdir=ABS_PATH)
+    try:
+        result = predictor.predict(sequence, name=name)
+
+        saved_files = predictor.save_structures(result, name)
+        if saved_files:
+            first_file = saved_files[0]
+            pymol_cmd.load(str(first_file))
+
+            try:
+                pdb_string = first_file.read_text()
+                plddt = utils.cal_plddt(pdb_string)
+                print(f"Structure saved in {first_file}.")
+                print("=" * 40)
+                print(f"    pLDDT: {plddt: .2f}")
+                print("=" * 40)
+                print(time.time() - st)
             except Exception:
                 print("Could not calculate pLDDT score")
         else:
@@ -517,15 +564,25 @@ def __init_plugin__(app=None):
     """
     import dotenv
 
-    # Load .env from the default workdir on startup
-    env_path = os.path.join(ABS_PATH, ".env")
-    if os.path.exists(env_path):
-        dotenv.load_dotenv(dotenv_path=env_path)
-        print(f"Loaded API keys from {env_path}")
+    # Define expected API keys
+    api_keys_to_check = ["NVCF_API_KEY", "ESM_API_TOKEN"]
+
+    # Check if any of the crucial API keys are missing from the environment
+    keys_are_missing = not all(key in os.environ for key in api_keys_to_check)
+
+    # Only try to load from .env if keys are missing from the system environment
+    if keys_are_missing:
+        env_path = os.path.join(ABS_PATH, ".env")
+        if os.path.exists(env_path):
+            # load_dotenv will NOT override existing environment variables by default
+            loaded = dotenv.load_dotenv(dotenv_path=env_path)
+            if loaded:
+                print(f"Loaded API keys from: {env_path}")
 
     pymol_cmd.extend("boltz2", init_boltz2_gui)
     pymol_cmd.extend("bfold", query_boltz_monomer)
     pymol_cmd.extend("esm3", query_esm3)
+    pymol_cmd.extend("esmfold", query_esmfold)
     pymol_cmd.extend("set_workdir", set_workdir)
     pymol_cmd.extend("set_base_url", set_base_url)
     pymol_cmd.extend("set_api_key", set_api_key)
