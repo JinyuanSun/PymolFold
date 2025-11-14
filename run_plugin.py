@@ -9,6 +9,9 @@ def ensure_package(pkg_name, version=None):
     from importlib import metadata
 
     module_name = pkg_name
+    python_exe = sys.executable
+    if python_exe.endswith("pythonw.exe"):
+        python_exe = python_exe.replace("pythonw.exe", "python.exe")
     try:
         installed_version = metadata.version(module_name)
         if version and installed_version != version:
@@ -17,7 +20,7 @@ def ensure_package(pkg_name, version=None):
             )
             subprocess.check_call(
                 [
-                    sys.executable,
+                    python_exe,
                     "-m",
                     "pip",
                     "install",
@@ -29,7 +32,7 @@ def ensure_package(pkg_name, version=None):
         print(f"Installing {pkg_name}{'==' + version if version else ''}...")
         subprocess.check_call(
             [
-                sys.executable,
+                python_exe,
                 "-m",
                 "pip",
                 "install",

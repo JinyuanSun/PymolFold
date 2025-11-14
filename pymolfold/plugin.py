@@ -579,7 +579,7 @@ def __init_plugin__(app=None):
             if loaded:
                 print(f"Loaded API keys from: {env_path}")
 
-    pymol_cmd.extend("boltz2", init_boltz2_gui)
+    pymol_cmd.extend("foldingui", init_boltz2_gui)
     pymol_cmd.extend("bfold", query_boltz_monomer)
     pymol_cmd.extend("esm3", query_esm3)
     pymol_cmd.extend("esmfold", query_esmfold)
