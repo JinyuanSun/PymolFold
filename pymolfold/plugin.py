@@ -246,7 +246,7 @@ def query_esmfold(
         sequence: Amino acid sequence
         name: Name for output files
     """
-    st = time.time()
+    # st = time.time()
     sequence = utils.clean_sequence(sequence)
     if not name:
         name = sequence[:3] + sequence[-3:]
@@ -267,7 +267,7 @@ def query_esmfold(
                 print("=" * 40)
                 print(f"    pLDDT: {plddt: .2f}")
                 print("=" * 40)
-                print(time.time() - st)
+                # print(time.time() - st)
             except Exception:
                 print("Could not calculate pLDDT score")
         else:
@@ -488,6 +488,10 @@ def pxmeter_align(ref_cif: str, model_cif: str, verbose: bool = True) -> dict:
     # Resolve to (object_name, absolute_path)
     ref_obj, ref_path = _resolve_obj_and_cif(ref_cif, param_name="ref_cif")
     model_obj, model_path = _resolve_obj_and_cif(model_cif, param_name="model_cif")
+
+    if ref_path.endswith(".pdb") or model_path.endswith(".pdb"):
+        print("PXMeter only supports CIF/MMCIF format. Skipping PXMeter evaluation.")
+        return {}
 
     # CEAlign model -> ref, then zoom on both
     ceinfo = None
