@@ -15,7 +15,7 @@ class ESM3Predictor(StructurePredictor):
 
     def _check_esm_token(self):
         """Check and load ESM API token"""
-        self.token = os.getenv("ESM_API_TOKEN")
+        self.token = os.environ.get("ESM_API_TOKEN")
         token_file = os.path.join(os.path.dirname(__file__), "..", ".esm3_token")
 
         if not self.token and os.path.exists(token_file):
@@ -74,39 +74,39 @@ class ESM3Predictor(StructurePredictor):
         }
 
 
-# class ESMFoldPredictor(StructurePredictor):
-#     """Structure predictor using ESMFold API"""
+class ESMFoldPredictor(StructurePredictor):
+    """Structure predictor using ESMFold API"""
 
-#     API_URL = "https://api.esmatlas.com/foldSequence/v1/pdb/"
+    API_URL = "https://api.esmatlas.com/foldSequence/v1/pdb/"
 
-#     def predict(self, sequence: str, **kwargs) -> Dict[str, Any]:
-#         """Predict structure using ESMFold
+    def predict(self, sequence: str, **kwargs) -> Dict[str, Any]:
+        """Predict structure using ESMFold
 
-#         Args:
-#             sequence: Amino acid sequence
-#             **kwargs: Additional parameters (not used)
+        Args:
+            sequence: Amino acid sequence
+            **kwargs: Additional parameters (not used)
 
-#         Returns:
-#             Dictionary with prediction results
-#         """
-#         headers = {"Content-Type": "application/x-www-form-urlencoded"}
-#         response = requests.post(
-#             self.API_URL,
-#             headers=headers,
-#             data=sequence,
-#             verify=False
-#         )
+        Returns:
+            Dictionary with prediction results
+        """
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        response = requests.post(
+            self.API_URL, headers=headers, data=sequence, verify=False
+        )
 
-#         if response.status_code == 500:
-#             raise RuntimeError("ESMFold API internal server error")
+        if response.status_code == 500:
+            raise RuntimeError("ESMFold API internal server error")
 
-#         return {
-#             "structures": [{
-#                 "structure": response.content.decode("utf-8"),
-#                 "source": kwargs.get("name", "esmfold_prediction")
-#             }],
-#             "confidence_scores": [None]  # pLDDT available in B-factors
-#         }
+        return {
+            "structures": [
+                {
+                    "structure": response.content.decode("utf-8"),
+                    "source": kwargs.get("name", "esmfold_prediction"),
+                }
+            ],
+            "confidence_scores": [None],  # pLDDT available in B-factors
+        }
+
 
 # class PyMolFoldPredictor(StructurePredictor):
 #     """Structure predictor using PyMolFold server"""

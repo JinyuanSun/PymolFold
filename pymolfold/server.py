@@ -10,7 +10,7 @@ import uvicorn
 from fastapi import FastAPI, HTTPException
 from typing import Dict, Any, Optional
 from pydantic import BaseModel
-from .predictors import Boltz2Predictor
+from .predictors import Boltz2Predictor, ESMFoldPredictor, ESM3Predictor
 from . import utils
 from pymol import cmd as pymol_cmd
 
@@ -19,9 +19,96 @@ class Payload(BaseModel):
     sub_data: Dict[str, Any]
 
 
+class EsmFoldPayload(BaseModel):
+    sequence: str
+    name: Optional[str] = None
+
+
+class Esm3Payload(BaseModel):
+    sequence: str
+    name: Optional[str] = None
+    num_samples: int = 1
+
+
 # --- FastAPI Server Application ---
 app = FastAPI()
 server_instance = None
+
+
+@app.post("/run_esmfold")
+async def run_esmfold_prediction(payload: EsmFoldPayload):
+    """Endpoint to receive data from Streamlit for ESMFold."""
+    try:
+        sequence = utils.clean_sequence(payload.sequence)
+        name = payload.name or (sequence[:3] + sequence[-3:])
+
+        predictor = ESMFoldPredictor()
+        result = predictor.predict(sequence, name=name)
+        saved_files = predictor.save_structures(result, name)
+
+        if not saved_files:
+            return {"status": "warning", "message": "No structures were generated."}
+
+        for file_path in saved_files:
+            pymol_cmd.load(str(file_path))
+            try:
+                pdb_string = file_path.read_text()
+                plddt = utils.cal_plddt(pdb_string)
+                print(f"Structure saved in {file_path}.")
+                print("=" * 40)
+                print(f"    pLDDT: {plddt: .2f}")
+                print("=" * 40)
+            except Exception:
+                print("Could not calculate pLDDT score")
+
+        return {
+            "status": "success",
+            "message": f"Loaded {len(saved_files)} files into PyMOL.",
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/run_esm3")
+async def run_esm3_prediction(payload: Esm3Payload):
+    """Endpoint to receive data from Streamlit for ESM-3."""
+    try:
+        sequence = utils.clean_sequence(payload.sequence)
+        name = payload.name or (sequence[:3] + sequence[-3:])
+
+        predictor = ESM3Predictor()
+        # Note: ESM-3 SDK might not support multiple samples directly in one call.
+        # We loop here to simulate it if needed, but the current SDK generates one structure.
+        # The `num_samples` is handled by the predictor's internal logic if supported.
+        result = predictor.predict(
+            sequence,
+            name=name,
+            num_steps=8,  # Default, can be exposed in UI later
+            temperature=0.7,  # Default
+        )
+        saved_files = predictor.save_structures(result, name)
+
+        if not saved_files:
+            return {"status": "warning", "message": "No structures were generated."}
+
+        for file_path in saved_files:
+            pymol_cmd.load(str(file_path))
+            try:
+                pdb_string = file_path.read_text()
+                plddt = utils.cal_plddt(pdb_string)
+                print(f"Structure saved in {file_path}.")
+                print("=" * 40)
+                print(f"    pLDDT: {plddt: .2f}")
+                print("=" * 40)
+            except Exception:
+                print("Could not calculate pLDDT score")
+
+        return {
+            "status": "success",
+            "message": f"Loaded {len(saved_files)} files into PyMOL.",
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/run_boltz2")

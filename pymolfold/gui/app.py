@@ -1,9 +1,17 @@
-import re
-import os
-import json
-import requests
 import streamlit as st
+import requests
+import json
+import os
+import re
 from rdkit import Chem
+import warnings
+
+warnings.filterwarnings("ignore")
+
+# --- Constants and Examples ---
+ESMFOLD_API_URL = "https://api.esmatlas.com/foldSequence/v1/pdb/"
+ESM3_API_URL = "https://forge.evolutionaryscale.ai/"
+BOLTZ2_API_URL = "https://health.api.nvidia.com/v1/biology/mit/boltz2/predict"
 
 EXAMPLES = [
     {
@@ -92,6 +100,8 @@ if "run_server_msg" not in st.session_state:
     st.session_state.run_server_msg = ""
 if "running" not in st.session_state:
     st.session_state.running = False
+if "current_tab" not in st.session_state:
+    st.session_state.current_tab = "Boltz-2"
 
 
 def is_valid_dna(seq: str) -> bool:
@@ -476,106 +486,239 @@ def run_submission():
         st.session_state.running = False
 
 
+def run_esm_submission(model_type: str):
+    st.session_state.running = True
+    st.session_state.run_errors = []
+    st.session_state.run_success = False
+    st.session_state.run_server_msg = ""
+    st.session_state.run_submitted = True
+
+    if model_type == "esmfold":
+        sequence = st.session_state.get("esmfold_sequence", "")
+        name = st.session_state.get("esmfold_name", "esmfold_prediction")
+        endpoint = "/run_esmfold"
+        if len(sequence) > 400:
+            st.session_state.run_errors.append(
+                "ESMFold only supports sequences up to 400 amino acids."
+            )
+            st.session_state.running = False
+            return
+        payload = {"sequence": sequence, "name": name}
+    elif model_type == "esm3":
+        sequence = st.session_state.get("esm3_sequence", "")
+        name = st.session_state.get("esm3_name", "esm3_prediction")
+        endpoint = "/run_esm3"
+        payload = {"sequence": sequence, "name": name}
+    else:
+        st.session_state.run_errors.append(f"Unknown model type: {model_type}")
+        st.session_state.running = False
+        return
+
+    if not is_valid_protein(sequence):
+        st.session_state.run_errors.append(
+            "Invalid protein sequence. Please use standard amino acid codes."
+        )
+
+    if st.session_state.run_errors:
+        st.session_state.running = False
+        return
+
+    try:
+        resp = requests.post(
+            f"http://127.0.0.1:5002{endpoint}",
+            json=payload,
+            timeout=400,
+        )
+        if resp.status_code == 200:
+            st.session_state.run_success = True
+            st.session_state.run_server_msg = (
+                "✅ Prediction successful! The result has been loaded into PyMOL."
+            )
+        else:
+            st.session_state.run_server_msg = f"Prediction failed: {resp.text}"
+    except Exception as e:
+        st.session_state.run_server_msg = f"Could not contact local plugin server: {e}"
+    finally:
+        st.session_state.running = False
+
+
 # --- Main Application UI ---
-st.set_page_config(page_title="Boltz2-Interface", layout="wide")
+st.set_page_config(page_title="PymolFold-Interface", layout="wide")
 
-title_cols = st.columns([8, 2])
-with title_cols[0]:
-    st.title("Add entities to fold.")
-with title_cols[1]:
-    if st.button("View Examples", use_container_width=True):
-        st.session_state.show_examples_dialog = True
+st.title("PymolFold Interface")
 
-st.text_input(
-    "Entity Name (Optional)", key="entity_name", placeholder="e.g., Test Complex"
-)
-st.number_input(
-    "How many structure samples you want to get?",
-    min_value=1,
-    max_value=5,
-    value=1,
-    step=1,
-    key="diffusion_samples",
-)
-# --- Example Dialog Logic ---
-if st.session_state.get("show_examples_dialog", False):
-    st.dialog("Select an Example")
-    formatted_options = [
-        f"**{ex['title']}**\n{repr(ex['description'])}" for ex in EXAMPLES
-    ]
-    selected_example_str = st.radio(
-        "Select an example from the list:", formatted_options, key="example_choice"
+tab1, tab2, tab3 = st.tabs(["Boltz-2", "ESMFold", "ESM3"])
+
+with tab1:
+    st.header("Boltz-2")
+    st.markdown(
+        f"""
+        **Boltz-2** is a generative AI model for predicting the structure of protein complexes, including those with proteins, nucleic acids (DNA/RNA), and small molecules (ligands). Also, it supports binding affinity prediction between proteins and ligands.
+        - **Official Website**: [NVIDIA BioNeMo - Boltz-2](https://build.nvidia.com/mit/boltz2)
+        - **API URL**: `{BOLTZ2_API_URL}`
+        """
     )
+    title_cols = st.columns([8, 2])
+    with title_cols[0]:
+        st.subheader("Add entities to fold.")
+    with title_cols[1]:
+        if st.button("View Examples", use_container_width=True):
+            st.session_state.show_examples_dialog = True
 
-    if st.button("Done", use_container_width=True, type="primary"):
-        selected_index = formatted_options.index(selected_example_str)
-        load_example(selected_index)
-        st.session_state.show_examples_dialog = False
-        st.rerun()
-
-# --- Top Control Bar ---
-top_cols = st.columns([2, 1, 1, 6])
-with top_cols[0]:
-    st.selectbox(
-        "Select entity to add",
-        ["Protein", "RNA", "DNA", "Ligand (SMILES)", "Ligand (CCD)"],
-        key="entity_select",
-        label_visibility="collapsed",
+    st.text_input(
+        "Entity Name (Optional)", key="entity_name", placeholder="e.g., Test Complex"
     )
-with top_cols[1]:
-    st.button("+ New", on_click=add_new_entity, use_container_width=True)
-# with top_cols[2]:
-#     st.button("🗑️ Clear All", on_click=clear_all_entities, use_container_width=True)
+    st.number_input(
+        "How many structure samples you want to get?",
+        min_value=1,
+        max_value=5,
+        value=1,
+        step=1,
+        key="diffusion_samples",
+    )
+    # --- Example Dialog Logic ---
+    if st.session_state.get("show_examples_dialog", False):
+        st.dialog("Select an Example")
+        formatted_options = [
+            f"**{ex['title']}**\n\n{ex['description']}" for ex in EXAMPLES
+        ]
+        selected_example_str = st.radio(
+            "Select an example from the list:", formatted_options, key="example_choice"
+        )
 
-st.markdown("---")
+        if st.button("Done", use_container_width=True, type="primary"):
+            selected_index = formatted_options.index(selected_example_str)
+            load_example(selected_index)
+            st.session_state.show_examples_dialog = False
+            st.rerun()
 
-# --- Dynamic Rendering of all Entity Cards ---
-for i, entity in enumerate(st.session_state.entities):
-    entity_type = entity["type"]
-    if entity_type == "Protein":
-        render_protein_card(entity, i)
-    elif entity_type == "RNA":
-        render_rna_card(entity, i)
-    elif entity_type == "DNA":
-        render_dna_card(entity, i)
-    elif entity_type == "Ligand (CCD)":
-        render_ligand_ccd_card(entity, i)
-    elif entity_type == "Ligand (SMILES)":
-        render_ligand_smiles_card(entity, i)
+    # --- Top Control Bar ---
+    top_cols = st.columns([2, 1, 1, 6])
+    with top_cols[0]:
+        st.selectbox(
+            "Select entity to add",
+            ["Protein", "RNA", "DNA", "Ligand (SMILES)", "Ligand (CCD)"],
+            key="entity_select",
+            label_visibility="collapsed",
+        )
+    with top_cols[1]:
+        st.button("+ New", on_click=add_new_entity, use_container_width=True)
+    # with top_cols[2]:
+    #     st.button("🗑️ Clear All", on_click=clear_all_entities, use_container_width=True)
 
-# --- Conditional Rendering of the Affinity Module ---
-entity_types_present = {e["type"] for e in st.session_state.entities}
-has_sequence = any(t in entity_types_present for t in ["Protein", "RNA", "DNA"])
-has_ligand = any(t in entity_types_present for t in ["Ligand (SMILES)", "Ligand (CCD)"])
-
-if has_sequence and has_ligand:
     st.markdown("---")
-    st.subheader("Binding Affinity")
-    ligand_options = [
-        f"{e['type']} CHAIN_ID: {e['chain_id']}"
-        for e in st.session_state.entities
-        if "Ligand" in e["type"]
-    ]
-    st.selectbox(
-        "Select ligand to calculate affinity",
-        ligand_options,
-        key="affinity_ligand_select",
+
+    # --- Dynamic Rendering of all Entity Cards ---
+    if "entities" in st.session_state:
+        for i, entity in enumerate(st.session_state.entities):
+            entity_type = entity["type"]
+            if entity_type == "Protein":
+                render_protein_card(entity, i)
+            elif entity_type == "RNA":
+                render_rna_card(entity, i)
+            elif entity_type == "DNA":
+                render_dna_card(entity, i)
+            elif entity_type == "Ligand (CCD)":
+                render_ligand_ccd_card(entity, i)
+            elif entity_type == "Ligand (SMILES)":
+                render_ligand_smiles_card(entity, i)
+
+    # --- Conditional Rendering of the Affinity Module ---
+    entity_types_present = {e["type"] for e in st.session_state.get("entities", [])}
+    has_sequence = any(t in entity_types_present for t in ["Protein", "RNA", "DNA"])
+    has_ligand = any(
+        t in entity_types_present for t in ["Ligand (SMILES)", "Ligand (CCD)"]
     )
-    st.checkbox("Calculate Affinity", value=True, key="calculate_affinity_checkbox")
-else:
-    st.markdown("---")
-    st.info(
-        "Add at least one sequence entity (Protein/DNA/RNA) and one ligand entity (Ligand) to enable binding affinity prediction."
+
+    if has_sequence and has_ligand:
+        st.markdown("---")
+        st.subheader("Binding Affinity")
+        ligand_options = [
+            f"{e['type']} CHAIN_ID: {e['chain_id']}"
+            for e in st.session_state.entities
+            if "Ligand" in e["type"]
+        ]
+        st.selectbox(
+            "Select ligand to calculate affinity",
+            ligand_options,
+            key="affinity_ligand_select",
+        )
+        st.checkbox("Calculate Affinity", value=True, key="calculate_affinity_checkbox")
+    else:
+        st.markdown("---")
+        st.info(
+            "Add at least one sequence entity (Protein/DNA/RNA) and one ligand entity (Ligand) to enable binding affinity prediction."
+        )
+
+    footer_cols = st.columns([8, 1, 1])
+    with footer_cols[1]:
+        st.button("Reset", use_container_width=True, on_click=clear_all_entities)
+
+    with footer_cols[2]:
+        # Simplified Run button using callback; validation + submission handled in run_submission
+        st.button(
+            "Run Boltz-2",
+            type="primary",
+            use_container_width=True,
+            on_click=run_submission,
+        )
+
+with tab2:
+    st.header("ESMFold")
+    st.markdown(
+        f"""
+        **ESMFold** is a fast, accurate model for predicting the structure of single protein chains. You can use it without any API Key.
+        - **Official Website**: [ESM Metagenomic Atlas](https://esmatlas.com/)
+        - **API URL**: `{ESMFOLD_API_URL}`
+        - **Limitation**: Only supports sequences up to 400 amino acids.
+        """
+    )
+    st.text_input(
+        "Structure Name (Optional)",
+        key="esmfold_name",
+        placeholder="e.g., MyProtein",
+    )
+    st.text_area(
+        "Protein Sequence *",
+        key="esmfold_sequence",
+        height=200,
+        placeholder="Enter protein sequence here...",
+    )
+    st.button(
+        "Run ESMFold",
+        type="primary",
+        use_container_width=True,
+        on_click=run_esm_submission,
+        args=("esmfold",),
     )
 
-
-footer_cols = st.columns([8, 1, 1])
-with footer_cols[1]:
-    st.button("Reset", use_container_width=True, on_click=clear_all_entities)
-
-with footer_cols[2]:
-    # Simplified Run button using callback; validation + submission handled in run_submission
-    st.button("Run", type="primary", use_container_width=True, on_click=run_submission)
+with tab3:
+    st.header("ESM3")
+    st.markdown(
+        f"""
+        **ESM3** is a powerful generative model for designing and predicting protein structures.
+        - **Official Website**: [EvolutionaryScale](https://www.evolutionaryscale.com/)
+        - **API URL**: `{ESM3_API_URL}`
+        """
+    )
+    st.text_input(
+        "Structure Name (Optional)",
+        key="esm3_name",
+        placeholder="e.g., MyGeneratedProtein",
+    )
+    st.text_area(
+        "Protein Sequence *",
+        key="esm3_sequence",
+        height=200,
+        placeholder="Enter protein sequence here...",
+    )
+    st.button(
+        "Run ESM3",
+        type="primary",
+        use_container_width=True,
+        on_click=run_esm_submission,
+        args=("esm3",),
+    )
 
 # Unified status / results area (moved outside footer columns)
 if st.session_state.get("running"):
@@ -597,5 +740,5 @@ if st.session_state.get("final_data") and st.checkbox("Show submission JSON"):
     st.json(st.session_state.final_data)
 
 st.caption(
-    """This page is a non-commercial reproduction of [Boltz2 on NVIDIA Build](https://build.nvidia.com/mit/boltz2)."""
+    """This page is a non-commercial reproduction of multiple structure prediction services."""
 )

@@ -5,13 +5,34 @@ import sys
 def ensure_package(pkg_name, version=None):
     import importlib.util
     import subprocess
+    import sys
+    from importlib import metadata
 
     module_name = pkg_name
-    if importlib.util.find_spec(module_name) is None:
-        print(f"Installing {pkg_name}{'==' + version if version else ''} ...")
+    python_exe = sys.executable
+    if python_exe.endswith("pythonw.exe"):
+        python_exe = python_exe.replace("pythonw.exe", "python.exe")
+    try:
+        installed_version = metadata.version(module_name)
+        if version and installed_version != version:
+            print(
+                f"Found {pkg_name} version {installed_version}, upgrading to {version}..."
+            )
+            subprocess.check_call(
+                [
+                    python_exe,
+                    "-m",
+                    "pip",
+                    "install",
+                    "--upgrade",
+                    f"{pkg_name}=={version}",
+                ]
+            )
+    except metadata.PackageNotFoundError:
+        print(f"Installing {pkg_name}{'==' + version if version else ''}...")
         subprocess.check_call(
             [
-                sys.executable,
+                python_exe,
                 "-m",
                 "pip",
                 "install",
@@ -20,7 +41,7 @@ def ensure_package(pkg_name, version=None):
         )
 
 
-ensure_package("pymolfold", "0.2.10")
+ensure_package("pymolfold")
 
 import pymolfold
 
