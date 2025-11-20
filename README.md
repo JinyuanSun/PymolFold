@@ -124,7 +124,7 @@ Run `foldingui` to open a web interface in your default browser. This interface 
 
 You can run the provided example:  
 <img src="./img/boltzexample.png" width="500">
-
+<img src="./img/boltzexample1.png" width="500">
 When using CCD code, you can check all the existed CCDs under `pymolfold/gui/ccd_keys.json`.
 
 If you want to predict a head-tail amide bonded cyclic peptide, you may set `cyclic` on.
