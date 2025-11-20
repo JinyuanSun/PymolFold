@@ -15,11 +15,30 @@ def ensure_package(pkg_name):
         installed_version = metadata.version(pkg_name)
         print(f"Found {pkg_name} version {installed_version}, upgrading to latest...")
         subprocess.check_call(
-            [python_exe, "-m", "pip", "install", "--upgrade", pkg_name]
+            [
+                python_exe,
+                "-m",
+                "pip",
+                "install",
+                "--upgrade",
+                pkg_name,
+                "--index-url",
+                "https://pypi.org/simple",
+            ]
         )
     except metadata.PackageNotFoundError:
         print(f"{pkg_name} not found. Installing latest version...")
-        subprocess.check_call([python_exe, "-m", "pip", "install", pkg_name])
+        subprocess.check_call(
+            [
+                python_exe,
+                "-m",
+                "pip",
+                "install",
+                pkg_name,
+                "--index-url",
+                "https://pypi.org/simple",
+            ]
+        )
 
 
 # Ensure pymolfold is installed or upgraded to latest
