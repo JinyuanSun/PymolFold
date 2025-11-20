@@ -1,46 +1,28 @@
 from pathlib import Path
 import sys
+import subprocess
+from importlib import metadata
 
 
-def ensure_package(pkg_name, version=None):
-    import importlib.util
-    import subprocess
-    import sys
-    from importlib import metadata
-
-    module_name = pkg_name
+def ensure_package(pkg_name):
+    """
+    Ensure that the package is installed. If not, install or upgrade to the latest version.
+    """
     python_exe = sys.executable
     if python_exe.endswith("pythonw.exe"):
         python_exe = python_exe.replace("pythonw.exe", "python.exe")
     try:
-        installed_version = metadata.version(module_name)
-        if version and installed_version != version:
-            print(
-                f"Found {pkg_name} version {installed_version}, upgrading to {version}..."
-            )
-            subprocess.check_call(
-                [
-                    python_exe,
-                    "-m",
-                    "pip",
-                    "install",
-                    "--upgrade",
-                    f"{pkg_name}=={version}",
-                ]
-            )
-    except metadata.PackageNotFoundError:
-        print(f"Installing {pkg_name}{'==' + version if version else ''}...")
+        installed_version = metadata.version(pkg_name)
+        print(f"Found {pkg_name} version {installed_version}, upgrading to latest...")
         subprocess.check_call(
-            [
-                python_exe,
-                "-m",
-                "pip",
-                "install",
-                f"{pkg_name}=={version}" if version else pkg_name,
-            ]
+            [python_exe, "-m", "pip", "install", "--upgrade", pkg_name]
         )
+    except metadata.PackageNotFoundError:
+        print(f"{pkg_name} not found. Installing latest version...")
+        subprocess.check_call([python_exe, "-m", "pip", "install", pkg_name])
 
 
+# Ensure pymolfold is installed or upgraded to latest
 ensure_package("pymolfold")
 
 import pymolfold
