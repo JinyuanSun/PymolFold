@@ -27,6 +27,8 @@ There are two ways to install PymolFold in PyMOL:
     ```
 
 5. Click `Fetch`. A command prompt window will appear, showing the progress of the installation. 
+6. Add it to startup if you want PymolFold to load automatically when PyMOL starts.
+7. Once you choose to add to startup, it will also automatically update to the latest version when you start PyMOL in the future.
 
 #### Method 2: Using the `run` Command 
 
@@ -41,7 +43,11 @@ There are two ways to install PymolFold in PyMOL:
 
 **NOTE**: Both methods will take 4-5 minutes(depending on your internet speed) to complete. After installation, you will see a success message in the PyMOL dialog box.
 
-<img src="./img/install.png" width="300">
+<img src="./img/installing.png" width="300">
+
+If you already have the latest version installed, you will see the following message:
+
+<img src="./img/installed.png" width="300">
 
 #### Troubleshooting Installation on Windows
 
@@ -124,16 +130,30 @@ Run `foldingui` to open a web interface in your default browser. This interface 
 
 You can run the provided example:  
 <img src="./img/boltzexample.png" width="500">
+<img src="./img/boltzexample1.png" width="500">
 
-When using CCD code, you can check all the existed CCDs under `pymolfold/gui/ccd_keys.json`.
+When using CCD code, you can check all the existed CCDs under `pymolfold/gui/ccd_keys.json`. And all the codes are from [RCSB CCD database](https://www.rcsb.org/ligand/CCD).
 
-If you want to predict a head-tail amide bonded cyclic peptide, you may set `cyclic` on.
+MORE DETAILED FEATURES:
+1. If you want to predict a head-tail amide bonded cyclic peptide, you may set `cyclic` on.
 
-If you want to use MSA as an auxiliary information, you may set `Add MSA` on. It will automatically query colab design msa search via NVIDIA API.
+    <img src="./img/cyclic.png" width="500">
 
-Calculate affinity when at least one sequence and one small molecule are present.
+2. If you want to use MSA as an auxiliary information, you may set `Add MSA` on. It will automatically query colab design msa search via NVIDIA API.
 
-After clicking **Run** on the web page, wait about 6 seconds (depending on protein size), and the structure will appear in PyMOL!
+    <img src="./img/msa.png" width="500">
+
+3. Calculate affinity when at least one sequence and one small molecule are present.
+
+    <img src="./img/affinity.png" width="500">
+
+4. Upon 3 modifications can be added to residues:
+
+    <img src="./img/mod.png" width="500">
+    
+    The CCD codes also can be found under `pymolfold/gui/ccd_keys.json`.
+
+5. After clicking **Run** on the web page, wait about 6 seconds (depending on protein size), and the structure will appear in PyMOL!
 
 
 ### 3. Color by pLDDT Scores (`color_plddt`)

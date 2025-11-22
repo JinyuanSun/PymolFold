@@ -86,7 +86,10 @@ class Boltz2Predictor(StructurePredictor):
                     "molecule_type": entity_type.lower(),
                     "sequence": sequence,
                     "cyclic": entity.get("cyclic", False),
-                    "modifications": entity.get("modifications", []),
+                    "modifications": [
+                        {"ccd": m["ccd"], "position": m["residue_index"]}
+                        for m in entity.get("modifications", [])
+                    ],
                 }
                 if entity_type == "Protein":
                     if entity.get("msa", False):
