@@ -647,7 +647,7 @@ with tab1:
     else:
         st.markdown("---")
         st.info(
-            "Add at least one sequence entity (Protein/DNA/RNA) and one ligand entity (Ligand) to enable binding affinity prediction."
+            "Add at least one sequence entity (Protein) and one ligand entity (Ligand) to enable binding affinity prediction."
         )
 
     footer_cols = st.columns([8, 1, 1])

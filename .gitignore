@@ -20,3 +20,7 @@ test.ipynb
 *.ipynb
 
 case_study/
+pxmeter_results/
+cloudmol/
+
+*.cif
