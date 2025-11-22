@@ -23,7 +23,7 @@ There are two ways to install PymolFold in PyMOL:
 4. In the URL field, enter:
 
     ```
-    https://raw.githubusercontent.com/JinyuanSun/PymolFold/refs/heads/main/run_plugin.py
+    https://raw.githubusercontent.com/JinyuanSun/PymolFold/refs/heads/main/pymolfold.py
     ```
 
 5. Click `Fetch`. A command prompt window will appear, showing the progress of the installation. 
@@ -36,7 +36,7 @@ There are two ways to install PymolFold in PyMOL:
 2. In the PyMOL command line (starting with `PyMOL>`), copy and paste the following command, then press Enter:
 
     ```bash
-    run https://raw.githubusercontent.com/JinyuanSun/PymolFold/refs/heads/main/run_plugin.py
+    run https://raw.githubusercontent.com/JinyuanSun/PymolFold/refs/heads/main/pymolfold.py
     ```
 
 3. Wait patiently as PyMOL downloads and installs the PymolFold plugin.
