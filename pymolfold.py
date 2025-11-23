@@ -472,5 +472,5 @@ def __init_plugin__(app=None):
     """Initialize the PymolFold plugin in PyMOL."""
     from pymol.plugins import addmenuitemqt
 
-    addmenuitemqt("PymolFold.Boltz-2 GUI", pymolfold.plugin.init_boltz2_gui)
-    addmenuitemqt("PymolFold GUI", show_pymolfold_dialog)
+    addmenuitemqt("PymolFold Streamlit GUI", pymolfold.plugin.init_boltz2_gui)
+    addmenuitemqt("PymolFold PyQt GUI", show_pymolfold_dialog)
