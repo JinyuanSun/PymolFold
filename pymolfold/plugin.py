@@ -1,6 +1,7 @@
 """PyMOL plugin for structure prediction"""
 
 import os
+import sys
 import threading
 import time
 import requests
@@ -476,7 +477,16 @@ def pxmeter_align(ref_cif: str, model_cif: str, verbose: bool = True) -> dict:
     dict
         PXMeter result (json-like dict)
     """
-    from shadowpxmeter.eval import evaluate
+    try:
+        from shadowpxmeter.eval import evaluate
+    except ImportError as e:
+        raise ImportError(
+            "PXMeter support could not be imported. Install the optional metrics "
+            "dependencies in PyMOL's Python environment:\n"
+            f'"{sys.executable}" -m pip install "pymolfold[metrics]"\n'
+            "DockQ may require a compiler and Python development headers. "
+            f"Original import error: {e}"
+        ) from e
 
     # import utils  # must provide visualize_pxmeter_metrics
 

@@ -9,6 +9,15 @@ Fast access to AlphaMissense predicted Human proteins provided by [hegelab](http
 
 PymolFold runs as a plugin within PyMOL. First, ensure you have PyMOL installed. Visit the [official PyMOL website](https://pymol.org/) to download and install the appropriate version for your operating system.
 
+PyMOL's embedded Python must be **3.10 or newer**, as required by the pinned ESM SDK.
+Check the interpreter used by PyMOL with:
+
+```python
+PyMOL> import sys
+PyMOL> print(sys.version)
+PyMOL> print(sys.executable)
+```
+
 ---
 
 ### Step 2: Install the Plugin
@@ -49,20 +58,32 @@ If you already have the latest version installed, you will see the following mes
 
 <img src="./img/installed.png" width="300">
 
-#### Troubleshooting Installation on Windows
+#### Optional PXMeter / DockQ support
 
-If you encounter the following error during installation:
+The default installation provides structure prediction and the GUIs. The
+`pxmeter_align` command needs the optional metrics dependencies. In a terminal,
+use the exact `sys.executable` path printed by PyMOL:
 
+```bash
+"/path/to/PyMOL/python" -m pip install "pymolfold[metrics]"
 ```
-error: Microsoft Visual C++ 14.0 or greater is required. Get it with "Microsoft C++ Build Tools": https://visualstudio.microsoft.com/visual-cpp-build-tools/
-```
 
-This error is likely due to an outdated software version on your computer. To resolve this:
+The metrics extra installs `shadowpxmeter==0.0.3`, which requires `DockQ==2.1.3`.
+That DockQ release is distributed as source and may need a compiler and Python
+development headers. Some bundled PyMOL interpreters lack those headers, including
+reported macOS installations. You can use prediction without installing this extra.
+For metrics, use a PyMOL/Python environment with the necessary headers and build
+tools; Windows builds may also require [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
 
-1. Visit [Microsoft Visual C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
-2. Download and install the build tools by running the provided `.exe` file.
-3. Refer to [this StackOverflow guide](https://stackoverflow.com/questions/64261546/how-to-solve-error-microsoft-visual-c-14-0-or-greater-is-required-when-inst) for additional help.
-4. After installation, retry the plugin installation process.
+#### Troubleshooting installation and initialization
+
+- If pip fails, include its full dependency/build error above the final failure
+  message, plus PyMOL's Python version and interpreter path when reporting an issue.
+  A non-zero pip exit status alone does not identify the cause.
+- For a Unicode decode error in `pymolfold.py`, remove the old startup script and
+  reinstall the loader from the raw URL above. Avoid copying it through an editor
+  that changes its encoding. The loader uses ASCII characters so saving it with a
+  local Windows encoding does not corrupt the source.
 
 ---
 
@@ -107,9 +128,12 @@ PymolFold offers powerful features for protein structure prediction and analysis
 
 ### 1. Predict Monomer Structures (`esm3`, `esmfold`, `bfold`)
 
-- **`esm3`**: Predicts monomer structures using the ESMFold engine.
+- **`esm3`**: Predicts monomer structures using the ESM3 Forge API.
 - **`esmfold`**: CLI version of ESMFold for monomer predictions. 
 - **`bfold`**: Simplified CLI for Boltz-2, automatically fetching MSA for monomers.
+
+ESM3 API failures are reported with the service's error code and message. Check
+your Forge token, model access, and service status according to that message.
 
 **Usage**:
 ```python

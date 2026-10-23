@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """PymolFold: for API-driven Structure Prediction and Quality Assessment.
 
 Developed by Jinyuan Sun and Yifan Deng.
@@ -35,6 +36,13 @@ def ensure_package(pkg_name):
     Checks current version against PyPI latest version.
     Only installs/upgrades if necessary.
     """
+    if sys.version_info < (3, 10):
+        raise RuntimeError(
+            "PymolFold requires Python 3.10 or newer. "
+            f"PyMOL is using {sys.executable}. "
+            "Please use a PyMOL installation with a compatible Python interpreter."
+        )
+
     python_exe = sys.executable
     if python_exe.endswith("pythonw.exe"):
         python_exe = python_exe.replace("pythonw.exe", "python.exe")
@@ -74,7 +82,7 @@ def ensure_package(pkg_name):
     # 4. Execute Installation if needed
     if should_install:
         try:
-            subprocess.check_call(
+            result = subprocess.run(
                 [
                     python_exe,
                     "-m",
@@ -84,15 +92,29 @@ def ensure_package(pkg_name):
                     pkg_name,
                     "--index-url",
                     "https://pypi.org/simple",
-                ]
+                ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
             )
+            print(result.stdout)
+            if result.returncode:
+                raise RuntimeError(
+                    f"Failed to install {pkg_name}: pip exited with status "
+                    f"{result.returncode} using {python_exe}. "
+                    "See the pip output above for the dependency or build error."
+                )
             print("---------------------------------------------------------------")
             print(f"SUCCESS: {pkg_name} has been updated/installed.")
             print("Please check the latest documentation and changes at:")
             print("https://github.com/JinyuanSun/PymolFold/blob/main/README.md")
             print("---------------------------------------------------------------")
-        except subprocess.CalledProcessError as e:
-            print(f"ERROR: Failed to install {pkg_name}. details: {e}")
+        except OSError as e:
+            raise RuntimeError(
+                f"Could not start pip using {python_exe}: {e}"
+            ) from e
 
 
 # Ensure pymolfold is installed or upgraded to latest
@@ -120,7 +142,7 @@ class PymolFoldDialog(QtWidgets.QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("PymolFold – Structure Prediction")
+        self.setWindowTitle("PymolFold - Structure Prediction")
         self.resize(700, 500)
 
         self._build_ui()
@@ -148,7 +170,7 @@ class PymolFoldDialog(QtWidgets.QDialog):
         pred_layout.addWidget(QtWidgets.QLabel("Amino acid sequence:"), row, 0, 1, 3)
         row += 1
         self.seq_edit = QtWidgets.QPlainTextEdit()
-        self.seq_edit.setPlaceholderText("Enter amino acid sequence here…")
+        self.seq_edit.setPlaceholderText("Enter amino acid sequence here...")
         self.seq_edit.setTabChangesFocus(True)
         pred_layout.addWidget(self.seq_edit, row, 0, 1, 3)
 
@@ -233,7 +255,7 @@ class PymolFoldDialog(QtWidgets.QDialog):
         settings_layout.addWidget(QtWidgets.QLabel("Working directory:"), row, 0)
         self.workdir_edit = QtWidgets.QLineEdit()
         settings_layout.addWidget(self.workdir_edit, row, 1)
-        self.workdir_browse_btn = QtWidgets.QPushButton("Browse…")
+        self.workdir_browse_btn = QtWidgets.QPushButton("Browse...")
         settings_layout.addWidget(self.workdir_browse_btn, row, 2)
 
         row += 1
@@ -264,7 +286,7 @@ class PymolFoldDialog(QtWidgets.QDialog):
         # --- Log output ---
         self.log_edit = QtWidgets.QPlainTextEdit()
         self.log_edit.setReadOnly(True)
-        self.log_edit.setPlaceholderText("Log output (in addition to PyMOL console)…")
+        self.log_edit.setPlaceholderText("Log output (in addition to PyMOL console)...")
         layout.addWidget(self.log_edit)
 
         # Close button
@@ -316,7 +338,7 @@ class PymolFoldDialog(QtWidgets.QDialog):
         name = self.name_edit.text().strip() or None
         predictor = self.predictor_combo.currentText()
 
-        self.append_log(f"Starting prediction with {predictor}…")
+        self.append_log(f"Starting prediction with {predictor}...")
 
         # Run in a background thread so the GUI doesn't freeze.
         def worker():
@@ -358,7 +380,7 @@ class PymolFoldDialog(QtWidgets.QDialog):
             )
             return
 
-        self.append_log(f"Fetching AlphaFold model for {uniprot_id}…")
+        self.append_log(f"Fetching AlphaFold model for {uniprot_id}...")
 
         def worker():
             try:
@@ -379,7 +401,7 @@ class PymolFoldDialog(QtWidgets.QDialog):
             )
             return
 
-        self.append_log(f"Fetching AlphaMissense structure for {name}…")
+        self.append_log(f"Fetching AlphaMissense structure for {name}...")
 
         def worker():
             try:
@@ -434,7 +456,7 @@ class PymolFoldDialog(QtWidgets.QDialog):
         Calls your existing `init_boltz2_gui` / foldingui function which launches the
         FastAPI + Streamlit UI in a browser.
         """
-        self.append_log("Launching Streamlit UI (foldingui)…")
+        self.append_log("Launching Streamlit UI (foldingui)...")
 
         def worker():
             try:
