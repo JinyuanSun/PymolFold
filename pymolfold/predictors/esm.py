@@ -41,12 +41,8 @@ class ESM3Predictor(StructurePredictor):
         Returns:
             Dictionary with prediction results
         """
-        # try:
         from esm.sdk import client
-        from esm.sdk.api import ESMProtein, GenerationConfig
-
-        # except ImportError:
-        #     raise ImportError("Please install esm: pip install esm")
+        from esm.sdk.api import ESMProtein, ESMProteinError, GenerationConfig
 
         model_name = kwargs.get("model_name", "esm3-medium-2024-08")
         model = client(
@@ -60,7 +56,14 @@ class ESM3Predictor(StructurePredictor):
         )
 
         prompt = ESMProtein(sequence=sequence)
-        prediction = model.generate(prompt, config)
+        try:
+            prediction = model.generate(prompt, config)
+            if isinstance(prediction, ESMProteinError):
+                raise prediction
+        except ESMProteinError as e:
+            raise RuntimeError(
+                f"ESM3 API error ({e.error_code}): {e.error_msg}"
+            ) from e
         chain = prediction.to_protein_chain()
 
         return {

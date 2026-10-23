@@ -2,7 +2,6 @@ __pycache__
 *venv*
 ./build
 utils/
-tests
 
 *egg-info*
 
