@@ -70,3 +70,16 @@ def test_unsupported_python_is_reported_before_install(loader):
     with pytest.raises(RuntimeError, match="Python 3.10"):
         loader["ensure_package"]("pymolfold")
     loader["subprocess"].run.assert_not_called()
+
+
+def test_newer_release_upgrades_existing_install(loader):
+    loader["metadata"].version.return_value = "0.2.13"
+    loader["get_latest_pypi_version"].return_value = "0.2.14"
+    loader["subprocess"].run.return_value = subprocess.CompletedProcess(
+        args=[], returncode=0, stdout="Successfully installed pymolfold\n"
+    )
+    loader["ensure_package"]("pymolfold")
+    args = loader["subprocess"].run.call_args.args[0]
+    assert args[:3] == ["/PyMOL/bin/python", "-m", "pip"]
+    assert "--upgrade" in args
+    assert "pymolfold" in args

@@ -14,3 +14,6 @@ global-exclude *.pyc
 global-exclude __pycache__
 global-exclude *.pyo
 global-exclude .git
+
+include scripts/check_release.py
+include RELEASE.md

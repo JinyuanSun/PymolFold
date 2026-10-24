@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
@@ -80,8 +80,13 @@ version = {attr = "pymolfold.version.__version__"}
 pymolfold = "pymolfold.plugin:__init_plugin__"
 
 [tool.setuptools]
-packages = ["pymolfold"]
-package-dir = {"pymolfold" = "pymolfold"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["pymolfold", "pymolfold.*"]
+
+[tool.setuptools.package-data]
+"pymolfold.gui" = ["ccd_keys.json"]
 
 [tool.black]
 line-length = 88
